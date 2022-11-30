@@ -3,7 +3,9 @@
 import React, { memo } from "react";
 import styled from "styled-components";
 import { format } from "date-fns";
+
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
+import ja from "date-fns/locale/ja";
 
 export const SBox = styled.div`
   border: 1px solid gray;
@@ -44,9 +46,12 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       <h3>交換日</h3>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
-          <p>{format(s.exchangeDay.toDate(), "yyyy/MM/dd")}</p>
+          <p>
+            {format(s.exchangeDay.toDate(), "yyyy/MM/dd (E)", { locale: ja })}
+          </p>
           <SInventoryDeadline>
-            在庫期限:{format(s.deadLine.toDate(), "yyyy/MM/dd")}
+            在庫期限:
+            {format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })}
           </SInventoryDeadline>
         </div>
       ))}

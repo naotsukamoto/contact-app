@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup, onAuthStateChanged } from "@firebase/auth";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ const SContainer = styled.div`
   text-align: center;
 `;
 
-export const Login: React.FC = () => {
+export const Login: React.FC = memo(() => {
   const navigate = useNavigate();
 
   // ログイン状態であれば、/homeにリダイレクトする
@@ -45,7 +45,7 @@ export const Login: React.FC = () => {
   return (
     <SContainer>
       <p>Sign In</p>
-      <Button name="ログイン" onClick={onClickLogin} />
+      <Button name="Twitterでログイン" onClick={onClickLogin} />
     </SContainer>
   );
-};
+});
