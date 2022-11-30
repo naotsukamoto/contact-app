@@ -1,5 +1,6 @@
 import React, { memo } from "react";
 import styled from "styled-components";
+import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { CountButton } from "../atoms/CountButton";
 
 // import SBox styled-components
@@ -20,7 +21,7 @@ const SRow = styled.div`
 `;
 
 type Props = {
-  stockOfContacts: any;
+  stockOfContacts: Array<StockOfContacts>;
   onClickCount: (eyePosition: "L" | "R", sign: "+" | "-") => void;
 };
 
@@ -33,7 +34,7 @@ export const Inventory: React.FC<Props> = memo((props) => {
     <>
       <SBox>
         <h3>コンタクトレンズ残り</h3>
-        {stockOfContacts.map((stockOfContact: any, n: number) => (
+        {stockOfContacts.map((stockOfContact: StockOfContacts, n: number) => (
           <div key={stockOfContact.id}>
             <p>{stockOfContacts.length > 0 || `${n}個目`}</p>
             <SSplitBox>

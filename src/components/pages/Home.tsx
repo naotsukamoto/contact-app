@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   collection,
@@ -29,7 +29,7 @@ const SContainer = styled.div`
   text-align: center;
 `;
 
-export const Home: React.FC = () => {
+export const Home: React.FC = memo(() => {
   const navigate = useNavigate();
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
@@ -239,4 +239,4 @@ export const Home: React.FC = () => {
       <Button name="ログアウト" onClick={() => signOut(auth)} />
     </SContainer>
   );
-};
+});
