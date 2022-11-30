@@ -39,9 +39,9 @@ export const Home: React.FC = memo(() => {
   >([]);
 
   // コレクションのドキュメントIDを格納するstateを作成
-  const [collectionID, setCollectionId] = useState("");
+  const [collectionID, setCollectionId] = useState<string>("");
   // サブコレクションのドキュメントIDを格納するstateを作成
-  const [subCollectionId, setSubCollectionId] = useState("");
+  const [subCollectionId, setSubCollectionId] = useState<string>("");
 
   // ログイン後のデータ取得
   let access: boolean = false;
@@ -113,32 +113,37 @@ export const Home: React.FC = memo(() => {
       );
 
       // stateの更新を待たずに計算する
-      const stockofContactsData = (
+      const stockofContactsData: StockOfContacts | undefined = (
         await getDoc(contactsDocRef.withConverter(stockOfContactsConverter))
       ).data();
+
+      // 交換日を定義
       const nextExchangeDay: Date = new Date();
       nextExchangeDay.setDate(nextExchangeDay.getDate() + 14);
 
       if (eyePosition === "R") {
         if (stockofContactsData) {
-          sign === "+"
-            ? await updateDoc(contactsDocRef, {
-                right_eye: stockofContactsData?.right_eye + 1,
-                deadLine: calcInventoryDeadline(
-                  stockofContactsData.left_eye,
-                  stockofContactsData.right_eye + 1,
-                  stockofContactsData.exchangeDay
-                ),
-              })
-            : await updateDoc(contactsDocRef, {
-                right_eye: stockofContactsData?.right_eye - 1,
-                exchangeDay: nextExchangeDay,
-                deadLine: calcInventoryDeadline(
-                  stockofContactsData.left_eye,
-                  stockofContactsData.right_eye - 1,
-                  stockofContactsData.exchangeDay
-                ),
-              });
+          await updateDoc(
+            contactsDocRef,
+            sign === "+"
+              ? {
+                  right_eye: stockofContactsData?.right_eye + 1,
+                  deadLine: calcInventoryDeadline(
+                    stockofContactsData.left_eye,
+                    stockofContactsData.right_eye + 1,
+                    stockofContactsData.exchangeDay
+                  ),
+                }
+              : {
+                  right_eye: stockofContactsData?.right_eye - 1,
+                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  deadLine: calcInventoryDeadline(
+                    stockofContactsData.left_eye,
+                    stockofContactsData.right_eye - 1,
+                    stockofContactsData.exchangeDay
+                  ),
+                }
+          );
         }
 
         // prevStateを使ってスプレッド構文でstateを更新
@@ -173,25 +178,29 @@ export const Home: React.FC = memo(() => {
         );
       } else {
         if (stockofContactsData) {
-          sign === "+"
-            ? await updateDoc(contactsDocRef, {
-                left_eye: stockofContactsData?.left_eye + 1,
-                deadLine: calcInventoryDeadline(
-                  stockofContactsData.left_eye + 1,
-                  stockofContactsData.right_eye,
-                  stockofContactsData.exchangeDay
-                ),
-              })
-            : await updateDoc(contactsDocRef, {
-                left_eye: stockofContactsData?.left_eye - 1,
-                exchangeDay: Timestamp.fromDate(nextExchangeDay),
-                deadLine: calcInventoryDeadline(
-                  stockofContactsData.left_eye - 1,
-                  stockofContactsData.right_eye,
-                  stockofContactsData.exchangeDay
-                ),
-              });
+          await updateDoc(
+            contactsDocRef,
+            sign === "+"
+              ? {
+                  left_eye: stockofContactsData?.left_eye + 1,
+                  deadLine: calcInventoryDeadline(
+                    stockofContactsData.left_eye + 1,
+                    stockofContactsData.right_eye,
+                    stockofContactsData.exchangeDay
+                  ),
+                }
+              : {
+                  left_eye: stockofContactsData?.left_eye - 1,
+                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  deadLine: calcInventoryDeadline(
+                    stockofContactsData.left_eye - 1,
+                    stockofContactsData.right_eye,
+                    stockofContactsData.exchangeDay
+                  ),
+                }
+          );
         }
+
         // 個数のstateをスプレッド構文を使って更新
         setStockOfContacts((prevState: Array<StockOfContacts>) =>
           prevState.map((obj: StockOfContacts) =>
