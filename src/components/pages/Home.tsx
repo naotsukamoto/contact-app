@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
@@ -91,6 +92,7 @@ export const Home: React.FC = memo(() => {
           );
         } else {
           navigate("/");
+          toast.error("ログインしてください");
         }
       });
     }
@@ -235,6 +237,11 @@ export const Home: React.FC = memo(() => {
     [collectionID, subCollectionId]
   );
 
+  const onClickSignOut = useCallback(() => {
+    signOut(auth);
+    toast.success("ログアウトしました");
+  }, []);
+
   return (
     <SContainer>
       <p>{userInfo?.user_name} さん</p>
@@ -245,7 +252,7 @@ export const Home: React.FC = memo(() => {
         onClickCount={onClickCount}
       />
       <br />
-      <Button name="ログアウト" onClick={() => signOut(auth)} />
+      <Button name="ログアウト" onClick={onClickSignOut} />
     </SContainer>
   );
 });
