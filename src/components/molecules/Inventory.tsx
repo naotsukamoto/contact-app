@@ -1,9 +1,8 @@
 import React, { memo } from "react";
 import styled from "styled-components";
+
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { CountButton } from "../atoms/CountButton";
-
-// import SBox styled-components
 import { SBox } from "./ExchangeDay";
 
 const SSplitBox = styled.div`

@@ -4,10 +4,10 @@ import React, { memo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithPopup, onAuthStateChanged } from "@firebase/auth";
 import styled from "styled-components";
-import toast from "react-hot-toast";
 
 import { Button } from "../atoms/Button";
 import { auth, provider } from "../../firebase";
+import { toastFunc } from "../../utils/toastFunc";
 
 const SContainer = styled.div`
   text-align: center;
@@ -23,7 +23,7 @@ export const Login: React.FC = memo(() => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           navigate("/home");
-          toast.success("ログインしました");
+          toastFunc("success", "ログインしました");
         }
       });
     }
@@ -44,11 +44,11 @@ export const Login: React.FC = memo(() => {
 
         // 画面遷移させる
         setTimeout(() => navigate("/home"), 1000);
-        toast.success("ログインしました");
+        toastFunc("success", "ログインしました");
       })
       .catch((error) => {
         console.error(error);
-        toast.error("ログインできませんでした");
+        toastFunc("error", "ログインできませんでした");
       });
   }, [navigate]);
 

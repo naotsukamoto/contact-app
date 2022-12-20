@@ -1,6 +1,7 @@
 import React from "react";
-import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.min.css";
 
 import { Router } from "./components/router/Router";
 
@@ -10,7 +11,7 @@ function App() {
       <BrowserRouter>
         <Router />
       </BrowserRouter>
-      <Toaster />
+      <ToastContainer />
     </div>
   );
 }
