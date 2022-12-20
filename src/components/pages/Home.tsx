@@ -13,8 +13,6 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
@@ -25,13 +23,13 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { userConverter } from "../../converters/userConverter";
 import { UserDocument } from "../../types/UserDocument";
 import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
+import { toastFunc } from "../../utils/toastFunc";
 
 const SContainer = styled.div`
   text-align: center;
 `;
 
 export const Home: React.FC = memo(() => {
-  const navigate = useNavigate();
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
   // コンタクトレンズの在庫を格納するstateを作成
@@ -90,9 +88,6 @@ export const Home: React.FC = memo(() => {
               });
             }
           );
-        } else {
-          navigate("/");
-          toast.error("ログインしてください");
         }
       });
     }
@@ -239,7 +234,7 @@ export const Home: React.FC = memo(() => {
 
   const onClickSignOut = useCallback(() => {
     signOut(auth);
-    toast.success("ログアウトしました");
+    toastFunc("success", "ログアウトしました");
   }, []);
 
   return (
