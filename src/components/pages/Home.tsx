@@ -13,6 +13,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
@@ -30,6 +31,8 @@ const SContainer = styled.div`
 `;
 
 export const Home: React.FC = memo(() => {
+  const navigate = useNavigate();
+
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
   // コンタクトレンズの在庫を格納するstateを作成
@@ -88,6 +91,9 @@ export const Home: React.FC = memo(() => {
               });
             }
           );
+        } else {
+          navigate("/");
+          toastFunc("error", "ログアウトしました");
         }
       });
     }
