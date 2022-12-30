@@ -39,6 +39,7 @@ type Props = {
 };
 
 export const ExchangeDay: React.FC<Props> = memo((props) => {
+  console.log("Exchangeday.tsxがレンダリングされた");
   const { stockOfContacts } = props;
 
   return (

@@ -31,7 +31,7 @@ export const Login: React.FC = memo(() => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           navigate("/home");
-          toastFunc("success", "ログインしました");
+          toastFunc("success", "ログインしましたlogin");
         }
       });
     }
@@ -56,12 +56,10 @@ export const Login: React.FC = memo(() => {
         setTimeout(() => navigate("/home"), 1000);
         // ローディング終了
         setIsLoading(false);
-        // toast表示
-        toastFunc("success", "ログインしました");
       })
       .catch((error) => {
         console.error(error);
-        toastFunc("error", "ログインできませんでした");
+        toastFunc("error", "ログインできませんでしたsignInWith");
       });
   }, [navigate]);
 
