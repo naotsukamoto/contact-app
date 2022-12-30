@@ -14,10 +14,6 @@ const SContainer = styled.div`
   text-align: center;
 `;
 
-const SLoading = styled.div`
-  po
-`;
-
 export const Login: React.FC = memo(() => {
   const navigate = useNavigate();
 
@@ -28,13 +24,19 @@ export const Login: React.FC = memo(() => {
   let access: boolean = false;
   useEffect(() => {
     if (!access) {
-      onAuthStateChanged(auth, (user) => {
+      console.log("Loginがレンダリングされた");
+      // loading開始
+      setIsLoading(true);
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
-          navigate("/home");
-          toastFunc("success", "ログインしましたlogin");
+          setTimeout(() => navigate("/home"), 500);
+          toastFunc("success", "ログインしました");
         }
+        setIsLoading(false);
       });
+      unsubscribe();
     }
+
     return () => {
       access = true;
     };
@@ -53,22 +55,21 @@ export const Login: React.FC = memo(() => {
         // firestoreに新規登録する
 
         // 画面遷移させる
-        setTimeout(() => navigate("/home"), 1000);
+        setTimeout(() => navigate("/home"), 500);
+        toastFunc("success", "ログインしました");
         // ローディング終了
         setIsLoading(false);
       })
       .catch((error) => {
         console.error(error);
-        toastFunc("error", "ログインできませんでしたsignInWith");
+        toastFunc("error", "ログインできませんでした");
       });
   }, [navigate]);
 
   return (
     <>
       {isLoading ? (
-        <SLoading>
-          <ReactLoading type="spin" color="#000" height="30px" width="30px" />
-        </SLoading>
+        <ReactLoading type="spin" color="#000" height="30px" width="30px" />
       ) : (
         <SContainer>
           <p>Sign In</p>
