@@ -10,8 +10,8 @@ export const calcInventoryDeadline = (
   // 交換日 + 在庫数 x 14日(2week)
   const dt: Date = exchangeDay.toDate();
   left_eye > right_eye
-    ? dt.setDate(dt.getDate() + left_eye * 14)
-    : dt.setDate(dt.getDate() + right_eye * 14);
+    ? dt.setDate(dt.getDate() + (left_eye - 1) * 14)
+    : dt.setDate(dt.getDate() + (right_eye - 1) * 14);
 
   const calcDeadLine: Timestamp = Timestamp.fromDate(dt);
 
