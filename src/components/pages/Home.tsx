@@ -100,6 +100,7 @@ export const Home: React.FC = memo(() => {
         }
       });
     }
+
     // accessをtrueにする処理は、コールバック関数で書くことによって関数を処理してから次の処理を行うようになる
     return () => {
       access = true;
@@ -243,7 +244,7 @@ export const Home: React.FC = memo(() => {
 
   const onClickSignOut = useCallback(() => {
     signOut(auth);
-    toastFunc("success", "ログアウトしました onClickSignOut");
+    toastFunc("success", "ログアウトしました");
   }, []);
 
   return (

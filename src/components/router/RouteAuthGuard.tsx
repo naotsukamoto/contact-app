@@ -17,7 +17,7 @@ export const RouteAuthGuard: React.FC<Props> = memo((props) => {
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     console.log("RouteAuthGuardでonAuthStateChangedがレンダリングされた");
     if (!user) {
-      toastFunc("error", "ログインできませんでしたRouteAuthGuard");
+      toastFunc("error", "ログインできませんでした");
       return <Navigate to={redirect} />;
     } else {
       return <>{component}</>;
