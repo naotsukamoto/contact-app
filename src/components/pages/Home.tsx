@@ -25,12 +25,14 @@ import { userConverter } from "../../converters/userConverter";
 import { UserDocument } from "../../types/UserDocument";
 import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
 import { toastFunc } from "../../utils/toastFunc";
+import { UserName } from "../atoms/UserName";
 
 const SContainer = styled.div`
   text-align: center;
 `;
 
 export const Home: React.FC = memo(() => {
+  console.log("Home.tsxがレンダリングされた");
   const navigate = useNavigate();
 
   // ユーザー情報を格納するstateを作成
@@ -50,8 +52,10 @@ export const Home: React.FC = memo(() => {
 
   useEffect(() => {
     if (!access) {
-      console.log("onAuthStateChangedがレンダリングされた");
+      console.log("useEffectがレンダリングされた");
       onAuthStateChanged(auth, (user) => {
+        console.log("onAuthStateChangedがレンダリングされた");
+
         if (user) {
           let currentUser: UserDocument;
           const currentUserstockOfContacts: Array<StockOfContacts> = [];
@@ -93,7 +97,6 @@ export const Home: React.FC = memo(() => {
           );
         } else {
           navigate("/");
-          toastFunc("error", "ログアウトしました");
         }
       });
     }
@@ -240,12 +243,12 @@ export const Home: React.FC = memo(() => {
 
   const onClickSignOut = useCallback(() => {
     signOut(auth);
-    toastFunc("success", "ログアウトしました");
+    toastFunc("success", "ログアウトしました onClickSignOut");
   }, []);
 
   return (
     <SContainer>
-      <p>{userInfo?.user_name} さん</p>
+      <UserName children={userInfo?.user_name} />
       <ExchangeDay stockOfContacts={stockOfContacts} />
       <br />
       <Inventory
