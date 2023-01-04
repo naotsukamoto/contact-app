@@ -1,6 +1,6 @@
 {
-  "short_name": "React App2",
-  "name": "Create React App Sample",
+  "short_name": "ConCon",
+  "name": "目のコンタクト管理アプリConCon公式",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
