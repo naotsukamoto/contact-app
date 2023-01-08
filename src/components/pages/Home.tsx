@@ -6,6 +6,7 @@ import {
   collection,
   getDocs,
   getDoc,
+  addDoc,
   doc,
   query,
   where,
@@ -69,10 +70,16 @@ export const Home: React.FC = memo(() => {
             (snapShot) => {
               if (snapShot.size === 0) {
                 console.log("これは新規会員です");
+                // firestoreにuserデータを登録する
+                addDoc(usersCollectionRef, {
+                  created_at: Timestamp.now(),
+                  email: user.email,
+                  uid: user.uid,
+                  user_name: user.displayName,
+                });
               }
             }
           );
-          // firestoreにuserデータを登録する
 
           // firestoreにstock_of_contacts初期値データを登録する
 
