@@ -55,7 +55,6 @@ export const Home: React.FC = memo(() => {
       console.log("useEffectがレンダリングされた");
       onAuthStateChanged(auth, (user) => {
         console.log("onAuthStateChangedがレンダリングされた");
-
         if (user) {
           let currentUser: UserDocument;
           const currentUserstockOfContacts: Array<StockOfContacts> = [];
@@ -64,6 +63,18 @@ export const Home: React.FC = memo(() => {
           const usersCollectionRef = collection(db, "users").withConverter(
             userConverter
           );
+
+          // firestoreにuserが存在しなければ、新規会員として扱う
+          getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
+            (snapShot) => {
+              if (snapShot.size === 0) {
+                console.log("これは新規会員です");
+              }
+            }
+          );
+          // firestoreにuserデータを登録する
+
+          // firestoreにstock_of_contacts初期値データを登録する
 
           // queryのwhereクエリ演算子を使ってドキュメント情報を取得
           getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
