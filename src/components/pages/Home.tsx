@@ -6,6 +6,7 @@ import {
   collection,
   getDocs,
   getDoc,
+  addDoc,
   doc,
   query,
   where,
@@ -55,7 +56,6 @@ export const Home: React.FC = memo(() => {
       console.log("useEffectがレンダリングされた");
       onAuthStateChanged(auth, (user) => {
         console.log("onAuthStateChangedがレンダリングされた");
-
         if (user) {
           let currentUser: UserDocument;
           const currentUserstockOfContacts: Array<StockOfContacts> = [];
@@ -63,6 +63,41 @@ export const Home: React.FC = memo(() => {
           // usersコレクションを参照
           const usersCollectionRef = collection(db, "users").withConverter(
             userConverter
+          );
+
+          // firestoreにuserが存在しなければ、新規会員として扱う
+          getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
+            async (snapShot) => {
+              if (snapShot.size === 0) {
+                console.log("これは新規会員です");
+                // firestoreにuserデータを登録する
+                await addDoc(usersCollectionRef, {
+                  created_at: Timestamp.now(),
+                  email: user.email,
+                  uid: user.uid,
+                  user_name: user.displayName,
+                });
+
+                // firestoreにstock_of_contactsデータを登録する
+                getDocs(
+                  query(usersCollectionRef, where("uid", "==", user.uid))
+                ).then((snapShot) => {
+                  snapShot.forEach(async (doc) => {
+                    await addDoc(
+                      collection(db, "users", doc.id, "stock_of_contacts"),
+                      {
+                        id: "",
+                        exchangeDay: Timestamp.now(),
+                        left_eye: 0,
+                        right_eye: 0,
+                        updated_at: Timestamp.now(),
+                        deadLine: Timestamp.now(),
+                      }
+                    );
+                  });
+                });
+              }
+            }
           );
 
           // queryのwhereクエリ演算子を使ってドキュメント情報を取得
