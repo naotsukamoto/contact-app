@@ -55,8 +55,6 @@ export const Login: React.FC = memo(() => {
         // 画面遷移させる
         setTimeout(() => navigate("/home"), 500);
         toastFunc("success", "ログインしました");
-        // ローディング終了
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error(error.code);
@@ -68,7 +66,9 @@ export const Login: React.FC = memo(() => {
         } else {
           toastFunc("error", "ログインできませんでした");
         }
-
+      })
+      .finally(() => {
+        console.log("login finally");
         // ローディング終了
         setIsLoading(false);
       });
