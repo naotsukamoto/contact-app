@@ -52,8 +52,6 @@ export const Login: React.FC = memo(() => {
     // ポップアップを出す
     signInWithPopup(auth, provider)
       .then((result) => {
-        // firestoreに新規登録する
-
         // 画面遷移させる
         setTimeout(() => navigate("/home"), 500);
         toastFunc("success", "ログインしました");
@@ -63,6 +61,8 @@ export const Login: React.FC = memo(() => {
       .catch((error) => {
         console.error(error);
         toastFunc("error", "ログインできませんでした");
+        // ローディング終了
+        setIsLoading(false);
       });
   }, [navigate]);
 
