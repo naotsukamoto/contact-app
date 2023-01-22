@@ -59,8 +59,16 @@ export const Login: React.FC = memo(() => {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error(error);
-        toastFunc("error", "ログインできませんでした");
+        console.error(error.code);
+        if (error.code === "auth/popup-closed-by-user") {
+          toastFunc(
+            "error",
+            "ポップアップが閉じられたため、ログインできませんでした"
+          );
+        } else {
+          toastFunc("error", "ログインできませんでした");
+        }
+
         // ローディング終了
         setIsLoading(false);
       });
