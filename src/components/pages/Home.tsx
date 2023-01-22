@@ -66,39 +66,44 @@ export const Home: React.FC = memo(() => {
           );
 
           // firestoreにuserが存在しなければ、新規会員として扱う
-          await getDocs(query(usersCollectionRef, where("uid", "==", user.uid)))
-            .then((snapShot) => {
-              if (snapShot.size === 0) {
-                console.log("これは新規会員です");
-                // firestoreにuserデータを登録する
-                addDoc(usersCollectionRef, {
-                  created_at: Timestamp.now(),
-                  email: user.email,
-                  uid: user.uid,
-                  user_name: user.displayName,
-                });
-              }
-            })
-            .then(() => {
-              getDocs(
-                query(usersCollectionRef, where("uid", "==", user.uid))
-              ).then((snapShot) => {
-                snapShot.forEach((doc) => {
-                  addDoc(collection(db, "users", doc.id, "stock_of_contacts"), {
-                    id: "",
-                    exchangeDay: Timestamp.now(),
-                    left_eye: 0,
-                    right_eye: 0,
-                    updated_at: Timestamp.now(),
-                    deadLine: Timestamp.now(),
+          await getDocs(
+            query(usersCollectionRef, where("uid", "==", user.uid))
+          ).then(async (snapShot) => {
+            if (snapShot.size === 0) {
+              console.log("userの追加を開始します");
+              // firestoreにuserデータを登録する
+              await addDoc(usersCollectionRef, {
+                created_at: Timestamp.now(),
+                email: user.email,
+                uid: user.uid,
+                user_name: user.displayName,
+              }).then(() => {
+                getDocs(
+                  query(usersCollectionRef, where("uid", "==", user.uid))
+                ).then((snapShot) => {
+                  snapShot.forEach((doc) => {
+                    console.log("stockの追加を開始します");
+                    addDoc(
+                      collection(db, "users", doc.id, "stock_of_contacts"),
+                      {
+                        id: "",
+                        exchangeDay: Timestamp.now(),
+                        left_eye: 0,
+                        right_eye: 0,
+                        updated_at: Timestamp.now(),
+                        deadLine: Timestamp.now(),
+                      }
+                    );
                   });
                 });
               });
-            });
+            }
+          });
 
           // queryのwhereクエリ演算子を使ってドキュメント情報を取得
           getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
             (snapShot) => {
+              console.log("データの表示を開始します");
               snapShot.forEach(async (doc) => {
                 // ここで対象ユーザーのドキュメントのIDを取得
                 setCollectionId(doc.id);
