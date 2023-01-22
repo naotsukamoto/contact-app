@@ -52,17 +52,25 @@ export const Login: React.FC = memo(() => {
     // ポップアップを出す
     signInWithPopup(auth, provider)
       .then((result) => {
-        // firestoreに新規登録する
-
         // 画面遷移させる
         setTimeout(() => navigate("/home"), 500);
         toastFunc("success", "ログインしました");
-        // ローディング終了
-        setIsLoading(false);
       })
       .catch((error) => {
-        console.error(error);
-        toastFunc("error", "ログインできませんでした");
+        console.error(error.code);
+        if (error.code === "auth/popup-closed-by-user") {
+          toastFunc(
+            "error",
+            "ポップアップが閉じられたため、ログインできませんでした"
+          );
+        } else {
+          toastFunc("error", "ログインできませんでした");
+        }
+      })
+      .finally(() => {
+        console.log("login finally");
+        // ローディング終了
+        setIsLoading(false);
       });
   }, [navigate]);
 
