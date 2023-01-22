@@ -54,7 +54,7 @@ export const Home: React.FC = memo(() => {
   useEffect(() => {
     if (!access) {
       console.log("useEffectがレンダリングされた");
-      onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, async (user) => {
         console.log("onAuthStateChangedがレンダリングされた");
         if (user) {
           let currentUser: UserDocument;
@@ -66,24 +66,24 @@ export const Home: React.FC = memo(() => {
           );
 
           // firestoreにuserが存在しなければ、新規会員として扱う
-          getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
-            async (snapShot) => {
-              if (snapShot.size === 0) {
-                console.log("これは新規会員です");
-                // firestoreにuserデータを登録する
-                await addDoc(usersCollectionRef, {
-                  created_at: Timestamp.now(),
-                  email: user.email,
-                  uid: user.uid,
-                  user_name: user.displayName,
-                });
-
-                // firestoreにstock_of_contactsデータを登録する
+          await getDocs(
+            query(usersCollectionRef, where("uid", "==", user.uid))
+          ).then(async (snapShot) => {
+            if (snapShot.size === 0) {
+              console.log("userの追加を開始します");
+              // firestoreにuserデータを登録する
+              await addDoc(usersCollectionRef, {
+                created_at: Timestamp.now(),
+                email: user.email,
+                uid: user.uid,
+                user_name: user.displayName,
+              }).then(() => {
                 getDocs(
                   query(usersCollectionRef, where("uid", "==", user.uid))
                 ).then((snapShot) => {
-                  snapShot.forEach(async (doc) => {
-                    await addDoc(
+                  snapShot.forEach((doc) => {
+                    console.log("stockの追加を開始します");
+                    addDoc(
                       collection(db, "users", doc.id, "stock_of_contacts"),
                       {
                         id: "",
@@ -96,13 +96,14 @@ export const Home: React.FC = memo(() => {
                     );
                   });
                 });
-              }
+              });
             }
-          );
+          });
 
           // queryのwhereクエリ演算子を使ってドキュメント情報を取得
           getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
             (snapShot) => {
+              console.log("データの表示を開始します");
               snapShot.forEach(async (doc) => {
                 // ここで対象ユーザーのドキュメントのIDを取得
                 setCollectionId(doc.id);
