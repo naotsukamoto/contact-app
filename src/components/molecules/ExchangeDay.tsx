@@ -42,6 +42,14 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
   console.log("Exchangeday.tsxがレンダリングされた");
   const { stockOfContacts } = props;
 
+  const statusDeadLine = (s: StockOfContacts, t: string) => {
+    if (s.left_eye < 1 || s.right_eye < 1) {
+      return "在庫なし";
+    } else {
+      return t;
+    }
+  };
+
   return (
     <SBox>
       <h3>交換日</h3>
@@ -52,7 +60,10 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
           </p>
           <SInventoryDeadline>
             在庫期限:
-            {format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })}
+            {statusDeadLine(
+              s,
+              format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
+            )}
           </SInventoryDeadline>
         </div>
       ))}
