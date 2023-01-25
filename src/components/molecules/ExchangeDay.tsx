@@ -8,16 +8,15 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import ja from "date-fns/locale/ja";
 
 export const SBox = styled.div`
-  border: 1px solid gray;
   width: 30%;
   margin: 0 auto;
   margin-top: 16px;
   padding: 16px 16px 8px 16px;
   border-radius: 8px;
-  box-shadow: 10px 5px 5px #eeeeee;
+  background: #fff;
 
   @media (max-width: 768px) {
-    width: 80%;
+    width: 85%;
     padding: 4px 4px 2px 4px;
   }
 `;

@@ -7,20 +7,21 @@ type Props = {
 };
 
 const SCountButton = styled.button`
-  height: 40px;
-  width: 40%;
-  font-size: 24px;
-  color: #666666;
+  font-size: 36px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin: 0 2px;
+  background: #00ffff;
+  border: none;
 
   &:hover {
     opacity: 60%;
-    cursor: pointer;
   }
 
   @media (max-width: 768px) {
-    height: 30px;
-    width: 50%;
-    font-size: 18px;
+    font-size: 24px;
   }
 `;
 
