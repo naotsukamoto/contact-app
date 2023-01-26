@@ -22,7 +22,7 @@ const SCountButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 24px;
+    font-size: 18px;
   }
 `;
 
