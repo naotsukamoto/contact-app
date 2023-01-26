@@ -8,6 +8,7 @@ const SButton = styled.button`
   padding: 0.5rem 2rem;
   border: 1px solid;
   margin: 10px;
+  outline: none;
 
   &:hover {
     opacity: 60%;
