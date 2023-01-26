@@ -8,8 +8,8 @@ type Props = {
 
 const SCountButton = styled.button`
   font-size: 36px;
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   cursor: pointer;
   margin: 0 2px;
