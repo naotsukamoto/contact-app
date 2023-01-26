@@ -13,7 +13,7 @@ const SCountButton = styled.button`
   border-radius: 50%;
   cursor: pointer;
   margin: 0 2px;
-  background: #00ffff;
+  background: #afeeee;
   border: none;
   outline: none;
 
@@ -23,6 +23,9 @@ const SCountButton = styled.button`
 
   @media (max-width: 768px) {
     font-size: 18px;
+    &:active {
+      opacity: 60%;
+    }
   }
 `;
 
