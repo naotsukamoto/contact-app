@@ -6,9 +6,9 @@ const SButton = styled.button`
   border-radius: 100vh;
   cursor: pointer;
   padding: 0.5rem 2rem;
-  border: 1px solid;
+  border: 1px solid #333333;
   margin: 10px;
-  outline: none;
+  color: #333333;
 
   &:hover {
     opacity: 60%;

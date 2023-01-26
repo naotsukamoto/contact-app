@@ -15,7 +15,7 @@ const SCountButton = styled.button`
   margin: 0 2px;
   background: #afeeee;
   border: none;
-  outline: none;
+  color: #333333;
 
   &:hover {
     opacity: 60%;
