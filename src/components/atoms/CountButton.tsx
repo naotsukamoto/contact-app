@@ -15,7 +15,7 @@ const SCountButton = styled.button`
   margin: 0 2px;
   background: #afeeee;
   border: none;
-  outline: none;
+  color: #333333;
 
   &:hover {
     opacity: 60%;
@@ -23,6 +23,7 @@ const SCountButton = styled.button`
 
   @media (max-width: 768px) {
     font-size: 18px;
+
     &:active {
       opacity: 60%;
     }
@@ -34,7 +35,11 @@ export const CountButton: React.FC<Props> = (props) => {
 
   return (
     <>
-      <SCountButton type="button" onClick={onClickCount}>
+      <SCountButton
+        type="button"
+        onClick={onClickCount}
+        onTouchStart={() => ""}
+      >
         {sign}
       </SCountButton>
     </>
