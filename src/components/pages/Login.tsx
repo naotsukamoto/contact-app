@@ -2,12 +2,16 @@
 
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithPopup, onAuthStateChanged } from "@firebase/auth";
+import {
+  signInWithPopup,
+  onAuthStateChanged,
+  AuthProvider,
+} from "@firebase/auth";
 import styled from "styled-components";
 import ReactLoading from "react-loading";
 
 import { Button } from "../atoms/Button";
-import { auth, provider } from "../../firebase";
+import { auth, googleAuthProvider, twitterAuthProvider } from "../../firebase";
 import { toastFunc } from "../../utils/toastFunc";
 
 const SContainer = styled.div`
@@ -43,36 +47,39 @@ export const Login: React.FC = memo(() => {
   }, []);
 
   // ログインボタンがクリックされたときの処理
-  const onClickLogin = useCallback(() => {
-    console.log("onClickLoginがレンダリングされた");
-    // loading開始
-    setIsLoading(true);
+  const onClickLogin = useCallback(
+    (provider: AuthProvider) => {
+      console.log("onClickLoginがレンダリングされた");
+      // loading開始
+      setIsLoading(true);
 
-    // firebaseを使ったログイン認証のロジック
-    // ポップアップを出す
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // 画面遷移させる
-        setTimeout(() => navigate("/home"), 500);
-        toastFunc("success", "ログインしました");
-      })
-      .catch((error) => {
-        console.error(error.code);
-        if (error.code === "auth/popup-closed-by-user") {
-          toastFunc(
-            "error",
-            "ポップアップが閉じられたため、ログインできませんでした"
-          );
-        } else {
-          toastFunc("error", "ログインできませんでした");
-        }
-      })
-      .finally(() => {
-        console.log("login finally");
-        // ローディング終了
-        setIsLoading(false);
-      });
-  }, [navigate]);
+      // firebaseを使ったログイン認証のロジック
+      // ポップアップを出す
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // 画面遷移させる
+          setTimeout(() => navigate("/home"), 500);
+          toastFunc("success", "ログインしました");
+        })
+        .catch((error) => {
+          console.error(error.code);
+          if (error.code === "auth/popup-closed-by-user") {
+            toastFunc(
+              "error",
+              "ポップアップが閉じられたため、ログインできませんでした"
+            );
+          } else {
+            toastFunc("error", "ログインできませんでした");
+          }
+        })
+        .finally(() => {
+          console.log("login finally");
+          // ローディング終了
+          setIsLoading(false);
+        });
+    },
+    [navigate]
+  );
 
   return (
     <>
@@ -81,7 +88,14 @@ export const Login: React.FC = memo(() => {
       ) : (
         <SContainer>
           <p>Sign In</p>
-          <Button name="Twitterでログイン" onClick={onClickLogin} />
+          <Button
+            name="Twitterでログイン"
+            onClick={() => onClickLogin(twitterAuthProvider)}
+          />
+          <Button
+            name="Googleでログイン"
+            onClick={() => onClickLogin(googleAuthProvider)}
+          />
         </SContainer>
       )}
     </>

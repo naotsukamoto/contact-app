@@ -1,6 +1,10 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth, TwitterAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  TwitterAuthProvider,
+} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -19,12 +23,14 @@ const app = initializeApp(firebaseConfig);
 // 認証
 // Authを取得
 const auth = getAuth(app);
-// Providerをインスタンス化
+// TwitterのProviderをインスタンス化
 // https://firebase.google.com/docs/reference/js/v8/firebase.auth.TwitterAuthProvider
-const provider = new TwitterAuthProvider();
+const twitterAuthProvider = new TwitterAuthProvider();
+// GoogleのProviderをインスタンス化
+const googleAuthProvider = new GoogleAuthProvider();
 
 // DB
 // firestoreとの接続でDBを取得
 const db = getFirestore(app);
 
-export { auth, provider, db };
+export { auth, twitterAuthProvider, googleAuthProvider, db };
