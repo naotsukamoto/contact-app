@@ -90,10 +90,12 @@ export const Login: React.FC = memo(() => {
           <p>Sign In</p>
           <Button
             name="Twitterでログイン"
+            img={`${process.env.PUBLIC_URL}/assets/btn_google_light_normal_ios@2x.png`}
             onClick={() => onClickLogin(twitterAuthProvider)}
           />
           <Button
             name="Googleでログイン"
+            img={`${process.env.PUBLIC_URL}/assets/Twitter_social_icons_rounded_square_blue.png`}
             onClick={() => onClickLogin(googleAuthProvider)}
           />
         </SContainer>

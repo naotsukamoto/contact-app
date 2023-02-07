@@ -17,14 +17,16 @@ const SButton = styled.button`
 
 type Props = {
   name: string;
+  img?: string;
   onClick: () => void;
 };
 
 export const Button: React.FC<Props> = memo((props) => {
-  const { name, onClick } = props;
+  const { name, img, onClick } = props;
   return (
     <div>
       <SButton type="button" onClick={onClick}>
+        <img src={img} alt="logo" />
         {name}
       </SButton>
     </div>
