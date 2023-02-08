@@ -34,10 +34,16 @@ export const Button: React.FC<Props> = memo((props) => {
   const { name, img, onClick } = props;
   return (
     <div>
-      <SButton type="button" onClick={onClick}>
-        <SImg src={img} alt="logo" />
-        {name}
-      </SButton>
+      {img ? (
+        <SButton type="button" onClick={onClick}>
+          <SImg src={img} alt="logo" />
+          {name}
+        </SButton>
+      ) : (
+        <SButton type="button" onClick={onClick}>
+          {name}
+        </SButton>
+      )}
     </div>
   );
 });

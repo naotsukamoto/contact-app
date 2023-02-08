@@ -18,6 +18,11 @@ const SContainer = styled.div`
   text-align: center;
 `;
 
+const SText = styled.p`
+  font-size: 12px;
+  color: #70757a;
+`;
+
 export const Login: React.FC = memo(() => {
   const navigate = useNavigate();
 
@@ -98,6 +103,7 @@ export const Login: React.FC = memo(() => {
             img={`${process.env.PUBLIC_URL}/assets/btn_google_light_pressed_ios@2x.png`}
             onClick={() => onClickLogin(googleAuthProvider)}
           />
+          <SText>※SNSログインは順次追加予定です</SText>
         </SContainer>
       )}
     </>
