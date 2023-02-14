@@ -6,6 +6,7 @@ import { format } from "date-fns";
 
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import ja from "date-fns/locale/ja";
+import { InputDate } from "../atoms/InputDate";
 
 export const SBox = styled.div`
   width: 30%;
@@ -57,6 +58,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
           <p>
             {format(s.exchangeDay.toDate(), "yyyy/MM/dd (E)", { locale: ja })}
           </p>
+          <InputDate dt={s.exchangeDay.toDate()} />
           <SInventoryDeadline>
             在庫期限:
             {statusDeadLine(
