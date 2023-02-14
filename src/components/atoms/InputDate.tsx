@@ -1,21 +1,45 @@
-import { format, isToday } from "date-fns";
+import { format } from "date-fns";
 import ja from "date-fns/locale/ja";
+import styled from "styled-components";
 
 type Props = {
   dt: Date;
 };
+
+const SLabel = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 150px;
+  height: 36px;
+  border: 2px solid #ccc;
+  border-radius: 15px;
+`;
+
+const SInput = styled.input`
+  position: relative;
+  padding: 0 20px;
+  width: 150px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  box-sizing: border-box;
+  color: #999;
+`;
 
 export const InputDate: React.FC<Props> = (props) => {
   const { dt } = props;
   const today = new Date();
   return (
     <>
-      <input
-        type="date"
-        min={format(today, "yyyy-MM-dd", { locale: ja })}
-        max="2023-03-31"
-        value={format(dt, "yyyy-MM-dd", { locale: ja })}
-      ></input>
+      <SLabel>
+        <SInput
+          name="date"
+          type="date"
+          min={format(today, "yyyy-MM-dd", { locale: ja })}
+          max="2023-03-31"
+          defaultValue={format(dt, "yyyy-MM-dd", { locale: ja })}
+        ></SInput>
+      </SLabel>
     </>
   );
 };
