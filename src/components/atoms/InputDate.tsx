@@ -1,9 +1,11 @@
 import { format } from "date-fns";
 import ja from "date-fns/locale/ja";
+
 import styled from "styled-components";
 
 type Props = {
   dt: Date;
+  onChangeDate: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
 const SLabel = styled.label`
@@ -26,12 +28,8 @@ const SInput = styled.input`
 `;
 
 export const InputDate: React.FC<Props> = (props) => {
-  const { dt } = props;
+  const { dt, onChangeDate } = props;
   const today = new Date();
-
-  const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(`${e.target.value} & onChangeDate!`);
-  };
 
   return (
     <>
