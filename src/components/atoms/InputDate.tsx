@@ -23,12 +23,16 @@ const SInput = styled.input`
   border: 0;
   background: transparent;
   box-sizing: border-box;
-  color: #999;
 `;
 
 export const InputDate: React.FC<Props> = (props) => {
   const { dt } = props;
   const today = new Date();
+
+  const onChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(`${e.target.value} & onChangeDate!`);
+  };
+
   return (
     <>
       <SLabel>
@@ -38,6 +42,7 @@ export const InputDate: React.FC<Props> = (props) => {
           min={format(today, "yyyy-MM-dd", { locale: ja })}
           max="2023-03-31"
           defaultValue={format(dt, "yyyy-MM-dd", { locale: ja })}
+          onChange={(e) => onChangeDate(e)}
         ></SInput>
       </SLabel>
     </>
