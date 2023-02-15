@@ -290,6 +290,7 @@ export const Home: React.FC = memo(() => {
         stockOfContacts={stockOfContacts}
         collectionId={collectionId}
         subCollectionId={subCollectionId}
+        setStockOfContacts={setStockOfContacts}
       />
       <br />
       <Inventory

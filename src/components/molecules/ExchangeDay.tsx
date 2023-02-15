@@ -2,12 +2,12 @@
 
 import React, { memo } from "react";
 import styled from "styled-components";
-import { format, parse } from "date-fns";
+import { differenceInCalendarDays, format, parse } from "date-fns";
+import ja from "date-fns/locale/ja";
+import { doc, Timestamp, updateDoc } from "firebase/firestore";
 
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
-import ja from "date-fns/locale/ja";
 import { InputDate } from "../atoms/InputDate";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 export const SBox = styled.div`
@@ -40,18 +40,19 @@ type Props = {
   stockOfContacts: Array<StockOfContacts>;
   collectionId: string;
   subCollectionId: string;
+  setStockOfContacts: React.Dispatch<React.SetStateAction<StockOfContacts[]>>;
 };
 
 export const ExchangeDay: React.FC<Props> = memo((props) => {
   console.log("Exchangeday.tsxがレンダリングされた");
-  const { stockOfContacts, collectionId, subCollectionId } = props;
+  const { stockOfContacts, collectionId, subCollectionId, setStockOfContacts } =
+    props;
 
   // 交換日の設定
   const onChangeDate = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const resetExchangeDay: string = e.target.value;
-
-    // console.log(`${e.target.value} & type: ${typeof e.target.value}`);
-    // console.log(parse(e.target.value, "yyyy-MM-dd", new Date()));
+    console.log(
+      `onChangeDateが実行されて、交換日が${e.target.value}に変更された`
+    );
 
     // firestoreへの参照
     const contactsDocRef = doc(
@@ -61,12 +62,55 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       "stock_of_contacts",
       subCollectionId
     );
-    await updateDoc(contactsDocRef, {
-      // 交換日をでTimestampに変換してupdateする
-      exchangeDay: Timestamp.fromDate(
-        parse(resetExchangeDay, "yyyy-MM-dd", new Date())
-      ),
-    });
+
+    // date-fnsで文字列をDateオブジェクトにparseする
+    const updatedExchangeDay: Date = parse(
+      e.target.value,
+      "yyyy-MM-dd",
+      new Date()
+    );
+
+    // update前の交換日と在庫期限を取得
+    const currentDeadLine: Date | undefined = stockOfContacts
+      .find((e) => e.id === subCollectionId)
+      ?.deadLine.toDate();
+    const currentExchangeDay: Date | undefined = stockOfContacts
+      .find((e) => e.id === subCollectionId)
+      ?.exchangeDay.toDate();
+
+    // 交換日に、resetExchangeDayをTimestampに変換してupdateする
+    if (
+      typeof currentDeadLine !== "undefined" &&
+      typeof currentExchangeDay !== "undefined"
+    ) {
+      // updateされた日付差分を抽出
+      currentDeadLine?.setDate(
+        currentDeadLine.getDate() +
+          differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
+      );
+
+      // DBアップデート
+      await updateDoc(contactsDocRef, {
+        exchangeDay: Timestamp.fromDate(updatedExchangeDay),
+        deadLine: Timestamp.fromDate(currentDeadLine),
+      });
+
+      // state更新
+      setStockOfContacts((prevState: Array<StockOfContacts>) =>
+        prevState.map((obj: StockOfContacts) =>
+          obj.id === subCollectionId
+            ? {
+                id: obj.id,
+                left_eye: obj.left_eye,
+                right_eye: obj.right_eye,
+                updated_at: obj.updated_at,
+                exchangeDay: Timestamp.fromDate(updatedExchangeDay),
+                deadLine: Timestamp.fromDate(currentDeadLine),
+              }
+            : obj
+        )
+      );
+    }
   };
 
   // 在庫日の表示を制御

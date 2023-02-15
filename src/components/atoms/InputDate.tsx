@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import ja from "date-fns/locale/ja";
-
+import { memo } from "react";
 import styled from "styled-components";
 
 type Props = {
@@ -27,7 +27,7 @@ const SInput = styled.input`
   box-sizing: border-box;
 `;
 
-export const InputDate: React.FC<Props> = (props) => {
+export const InputDate: React.FC<Props> = memo((props) => {
   const { dt, onChangeDate } = props;
   const today = new Date();
 
@@ -45,4 +45,4 @@ export const InputDate: React.FC<Props> = (props) => {
       </SLabel>
     </>
   );
-};
+});
