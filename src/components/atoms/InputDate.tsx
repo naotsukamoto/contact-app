@@ -23,8 +23,13 @@ const SInput = styled.input`
   width: 150px;
   height: 36px;
   border: 0;
+  color: #333333;
   background: transparent;
   box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 export const InputDate: React.FC<Props> = memo((props) => {
