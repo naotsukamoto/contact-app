@@ -44,7 +44,7 @@ export const Home: React.FC = memo(() => {
   >([]);
 
   // コレクションのドキュメントIDを格納するstateを作成
-  const [collectionID, setCollectionId] = useState<string>("");
+  const [collectionId, setCollectionId] = useState<string>("");
   // サブコレクションのドキュメントIDを格納するstateを作成
   const [subCollectionId, setSubCollectionId] = useState<string>("");
 
@@ -150,7 +150,7 @@ export const Home: React.FC = memo(() => {
       const contactsDocRef = doc(
         db,
         "users",
-        collectionID,
+        collectionId,
         "stock_of_contacts",
         subCollectionId
       );
@@ -275,7 +275,7 @@ export const Home: React.FC = memo(() => {
         );
       }
     },
-    [collectionID, subCollectionId]
+    [collectionId, subCollectionId]
   );
 
   const onClickSignOut = useCallback(() => {
@@ -286,7 +286,12 @@ export const Home: React.FC = memo(() => {
   return (
     <SContainer>
       <UserName children={userInfo?.user_name} />
-      <ExchangeDay stockOfContacts={stockOfContacts} />
+      <ExchangeDay
+        stockOfContacts={stockOfContacts}
+        collectionId={collectionId}
+        subCollectionId={subCollectionId}
+        setStockOfContacts={setStockOfContacts}
+      />
       <br />
       <Inventory
         stockOfContacts={stockOfContacts}
