@@ -127,9 +127,6 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       <h3>交換日</h3>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
-          <p>
-            {format(s.exchangeDay.toDate(), "yyyy/MM/dd (E)", { locale: ja })}
-          </p>
           <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
           <SInventoryDeadline>
             在庫期限:

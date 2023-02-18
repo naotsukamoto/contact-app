@@ -38,7 +38,6 @@ export const InputDate: React.FC<Props> = memo((props) => {
           name="date"
           type="date"
           min={format(today, "yyyy-MM-dd", { locale: ja })}
-          max="2023-03-31"
           defaultValue={format(dt, "yyyy-MM-dd", { locale: ja })}
           onChange={(e) => onChangeDate(e)}
         ></SInput>
