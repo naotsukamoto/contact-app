@@ -3,7 +3,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  signInWithPopup,
+  signInWithRedirect,
   onAuthStateChanged,
   AuthProvider,
 } from "@firebase/auth";
@@ -60,14 +60,14 @@ export const Login: React.FC = memo(() => {
 
       // firebaseを使ったログイン認証のロジック
       // ポップアップを出す
-      signInWithPopup(auth, provider)
+      // signInWithPopup(auth, provider)
+      signInWithRedirect(auth, provider)
         .then((result) => {
           // 画面遷移させる
           setTimeout(() => navigate("/home"), 500);
           toastFunc("success", "ログインしました");
         })
         .catch((error) => {
-          console.error(error.code);
           if (error.code === "auth/popup-closed-by-user") {
             toastFunc(
               "error",
@@ -76,9 +76,10 @@ export const Login: React.FC = memo(() => {
           } else {
             toastFunc("error", "ログインできませんでした");
           }
+          // ローディング終了
+          setIsLoading(false);
         })
         .finally(() => {
-          console.log("login finally");
           // ローディング終了
           setIsLoading(false);
         });

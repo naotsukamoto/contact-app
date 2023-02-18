@@ -28,7 +28,7 @@ const SInput = styled.input`
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: 16px;
   }
 `;
 
