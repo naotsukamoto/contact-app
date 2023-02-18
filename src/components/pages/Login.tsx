@@ -3,6 +3,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  signInWithPopup,
   signInWithRedirect,
   onAuthStateChanged,
   AuthProvider,
@@ -60,8 +61,8 @@ export const Login: React.FC = memo(() => {
 
       // firebaseを使ったログイン認証のロジック
       // ポップアップを出す
-      // signInWithPopup(auth, provider)
-      signInWithRedirect(auth, provider)
+      signInWithPopup(auth, provider)
+        // signInWithRedirect(auth, provider)
         .then((result) => {
           // 画面遷移させる
           setTimeout(() => navigate("/home"), 500);
@@ -76,8 +77,6 @@ export const Login: React.FC = memo(() => {
           } else {
             toastFunc("error", "ログインできませんでした");
           }
-          // ローディング終了
-          setIsLoading(false);
         })
         .finally(() => {
           // ローディング終了
