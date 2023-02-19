@@ -9,6 +9,7 @@ import { doc, Timestamp, updateDoc } from "firebase/firestore";
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
+import { QuestionTooltip } from "../atoms/QuestionTooltip";
 
 export const SBox = styled.div`
   width: 30%;
@@ -134,6 +135,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
               s,
               format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
             )}
+            <QuestionTooltip mark="?" />
           </SInventoryDeadline>
         </div>
       ))}
