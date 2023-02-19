@@ -21,20 +21,24 @@ export const SBox = styled.div`
 
   @media (max-width: 768px) {
     width: 85%;
-    padding: 4px 4px 2px 4px;
+    padding: 4px 4px 0px 4px;
   }
 `;
 
 const SInventoryDeadline = styled.p`
-  text-align: right;
-  margin: 36px 16px 0 0;
   color: gray;
   font-size: 14px;
+  margin-right: 4px;
 
   @media (max-width: 768px) {
-    margin: 9px 4px 0 0;
     font-size: 10px;
   }
+`;
+
+const SFlex = styled.div`
+  display: flex;
+  justify-content: right;
+  align-items: center;
 `;
 
 type Props = {
@@ -129,14 +133,16 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
           <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
-          <SInventoryDeadline>
-            在庫期限:
-            {statusDeadLine(
-              s,
-              format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
-            )}
+          <SFlex>
+            <SInventoryDeadline>
+              在庫期限:
+              {statusDeadLine(
+                s,
+                format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
+              )}
+            </SInventoryDeadline>
             <QuestionTooltip mark="?" />
-          </SInventoryDeadline>
+          </SFlex>
         </div>
       ))}
     </SBox>
