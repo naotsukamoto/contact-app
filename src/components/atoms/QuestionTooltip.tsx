@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
 import { Tooltip } from "react-tooltip";
 import styled from "styled-components";
@@ -18,7 +19,7 @@ export const QuestionTooltip: React.FC<Props> = (props) => {
       <a data-tooltip-id="my-anchor-element" data-tooltip-content={content}>
         <AiFillQuestionCircle />
       </a>
-      <Tooltip id="my-anchor-element" place="top" />
+      <Tooltip id="my-anchor-element" />
     </>
   );
 };
