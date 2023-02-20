@@ -35,9 +35,15 @@ const SInventoryDeadline = styled.p`
   }
 `;
 
-const SFlex = styled.div`
+const SFlexRight = styled.div`
   display: flex;
   justify-content: right;
+  align-items: center;
+`;
+
+const SFlexCenter = styled.div`
+  display: flex;
+  justify-content: center;
   align-items: center;
 `;
 
@@ -129,11 +135,14 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
 
   return (
     <SBox>
-      <h3>交換日</h3>
+      <SFlexCenter>
+        <h3>交換日</h3>
+        <QuestionTooltip content="次コンタクトレンズを交換する日です。数が減ったときに2週間後の日付を表示します。" />
+      </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
           <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
-          <SFlex>
+          <SFlexRight>
             <SInventoryDeadline>
               在庫期限:
               {statusDeadLine(
@@ -141,8 +150,8 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
                 format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
               )}
             </SInventoryDeadline>
-            <QuestionTooltip />
-          </SFlex>
+            <QuestionTooltip content="どちらかのコンタクトレンズが0になる日です。" />
+          </SFlexRight>
         </div>
       ))}
     </SBox>
