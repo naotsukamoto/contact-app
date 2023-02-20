@@ -15,10 +15,10 @@ export const QuestionTooltip: React.FC<Props> = (props) => {
   const { content } = props;
   return (
     <>
-      <STooltip data-tooltip-id="mark-tooltip" data-tip="React-tooltip">
+      <a data-tooltip-id="my-anchor-element" data-tooltip-content={content}>
         <AiFillQuestionCircle />
-      </STooltip>
-      <Tooltip id="mark-tooltip" place="top" content={content} />
+      </a>
+      <Tooltip id="my-anchor-element" place="top" />
     </>
   );
 };

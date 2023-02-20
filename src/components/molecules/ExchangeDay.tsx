@@ -137,7 +137,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
     <SBox>
       <SFlexCenter>
         <h3>交換日</h3>
-        <QuestionTooltip content="次コンタクトレンズを交換する日です。数が減ったときに2週間後の日付を表示します。" />
+        <QuestionTooltip content="数が減ったときに2週間後の日付を表示します。" />
       </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
