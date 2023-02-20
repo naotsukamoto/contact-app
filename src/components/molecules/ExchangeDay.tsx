@@ -141,7 +141,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
                 format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
               )}
             </SInventoryDeadline>
-            <QuestionTooltip mark="?" />
+            <QuestionTooltip />
           </SFlex>
         </div>
       ))}
