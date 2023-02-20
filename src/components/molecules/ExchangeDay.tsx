@@ -9,6 +9,7 @@ import { doc, Timestamp, updateDoc } from "firebase/firestore";
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
+import { QuestionTooltip } from "../atoms/QuestionTooltip";
 
 export const SBox = styled.div`
   width: 30%;
@@ -20,20 +21,30 @@ export const SBox = styled.div`
 
   @media (max-width: 768px) {
     width: 85%;
-    padding: 4px 4px 2px 4px;
+    padding: 4px 4px 0px 4px;
   }
 `;
 
 const SInventoryDeadline = styled.p`
-  text-align: right;
-  margin: 36px 16px 0 0;
   color: gray;
   font-size: 14px;
+  margin-right: 4px;
 
   @media (max-width: 768px) {
-    margin: 9px 4px 0 0;
     font-size: 10px;
   }
+`;
+
+const SFlexRight = styled.div`
+  display: flex;
+  justify-content: right;
+  align-items: center;
+`;
+
+const SFlexCenter = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 type Props = {
@@ -124,17 +135,23 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
 
   return (
     <SBox>
-      <h3>交換日</h3>
+      <SFlexCenter>
+        <h3>交換日</h3>
+        <QuestionTooltip content="数が減ったときに2週間後の日付を表示します。" />
+      </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
           <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
-          <SInventoryDeadline>
-            在庫期限:
-            {statusDeadLine(
-              s,
-              format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
-            )}
-          </SInventoryDeadline>
+          <SFlexRight>
+            <SInventoryDeadline>
+              在庫期限:
+              {statusDeadLine(
+                s,
+                format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
+              )}
+            </SInventoryDeadline>
+            <QuestionTooltip content="どちらかのコンタクトレンズが0になる日です。" />
+          </SFlexRight>
         </div>
       ))}
     </SBox>
