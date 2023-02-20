@@ -13,7 +13,11 @@ export const QuestionTooltip: React.FC = () => {
       <STooltip data-tooltip-id="mark-tooltip" data-tip="React-tooltip">
         <AiFillQuestionCircle />
       </STooltip>
-      <Tooltip id="mark-tooltip" place="top" content="Hello!" />
+      <Tooltip
+        id="mark-tooltip"
+        place="top"
+        content="どちらかのコンタクトレンズが0になる日です。"
+      />
     </>
   );
 };
