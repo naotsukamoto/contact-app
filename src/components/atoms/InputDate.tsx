@@ -36,8 +36,6 @@ export const InputDate: React.FC<Props> = memo((props) => {
   const { dt, onChangeDate } = props;
   const today = new Date();
 
-  console.log("InputDateがレンダリングされた", `dt:${dt}`);
-
   return (
     <>
       <SLabel>
