@@ -35,7 +35,7 @@ const SInput = styled.input`
 export const InputDate: React.FC<Props> = memo((props) => {
   const { dt, onChangeDate } = props;
   const today = new Date();
-
+  console.log("InputDateがレンダリングされた", `dt:${dt}`);
   return (
     <>
       <SLabel>
@@ -43,7 +43,7 @@ export const InputDate: React.FC<Props> = memo((props) => {
           name="date"
           type="date"
           min={format(today, "yyyy-MM-dd", { locale: ja })}
-          defaultValue={format(dt, "yyyy-MM-dd", { locale: ja })}
+          value={format(dt, "yyyy-MM-dd", { locale: ja })}
           onChange={(e) => onChangeDate(e)}
         ></SInput>
       </SLabel>
