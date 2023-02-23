@@ -58,6 +58,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
   console.log("Exchangeday.tsxがレンダリングされた");
   const { stockOfContacts, collectionId, subCollectionId, setStockOfContacts } =
     props;
+
   // 交換日の設定
   const onChangeDate = async (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log(
