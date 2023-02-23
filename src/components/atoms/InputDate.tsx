@@ -43,7 +43,7 @@ export const InputDate: React.FC<Props> = memo((props) => {
           name="date"
           type="date"
           min={format(today, "yyyy-MM-dd", { locale: ja })}
-          defaultValue={format(dt, "yyyy-MM-dd", { locale: ja })}
+          value={format(dt, "yyyy-MM-dd", { locale: ja })}
           onChange={(e) => onChangeDate(e)}
         ></SInput>
       </SLabel>
