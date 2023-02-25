@@ -12,10 +12,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.x"
-      - name: install dependencies
-        run: npm install
-      - name: firebase package installs
-        run: npm install -g firebase-tools
+      - name: install dependencies and firebase package installs
+        run: |
+          npm install
+          npm install -g firebase-tools
       - name: build
         run: npm run build
       - name: deploy to firebase hosting
