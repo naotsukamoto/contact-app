@@ -40,25 +40,46 @@ export const Inventory: React.FC<Props> = memo((props) => {
               <SRow>
                 <p>左</p>
                 <p>{stockOfContact.left_eye}</p>
-                <CountButton
-                  sign="-"
-                  onClickCount={() => onClickCount("L", "-")}
-                />
+                {stockOfContact.left_eye > 0 ? (
+                  <CountButton
+                    sign="-"
+                    onClickCount={() => onClickCount("L", "-")}
+                    disabled={false}
+                  />
+                ) : (
+                  <CountButton
+                    sign="-"
+                    onClickCount={() => onClickCount("L", "-")}
+                    disabled={true}
+                  />
+                )}
                 <CountButton
                   sign="+"
                   onClickCount={() => onClickCount("L", "+")}
+                  disabled={false}
                 />
               </SRow>
               <SRow>
                 <p>右</p>
                 <p>{stockOfContact.right_eye}</p>
-                <CountButton
-                  sign="-"
-                  onClickCount={() => onClickCount("R", "-")}
-                />
+                {stockOfContact.right_eye > 0 ? (
+                  <CountButton
+                    sign="-"
+                    onClickCount={() => onClickCount("R", "-")}
+                    disabled={false}
+                  />
+                ) : (
+                  <CountButton
+                    sign="-"
+                    onClickCount={() => onClickCount("R", "-")}
+                    disabled={true}
+                  />
+                )}
+
                 <CountButton
                   sign="+"
                   onClickCount={() => onClickCount("R", "+")}
+                  disabled={false}
                 />
               </SRow>
             </SSplitBox>
