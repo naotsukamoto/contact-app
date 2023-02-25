@@ -137,7 +137,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
     <SBox>
       <SFlexCenter>
         <h3>交換日</h3>
-        <QuestionTooltip content="数が減ったときに2週間後の日付を表示します。" />
+        <QuestionTooltip content="次の交換日を表示します。手動で編集できます。" />
       </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
@@ -150,7 +150,7 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
                 format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })
               )}
             </SInventoryDeadline>
-            <QuestionTooltip content="どちらかのコンタクトレンズが0になる日です。" />
+            <QuestionTooltip content="残数が少ない方のコンタクトレンズが0になる日です。" />
           </SFlexRight>
         </div>
       ))}
