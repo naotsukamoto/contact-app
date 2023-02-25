@@ -1,9 +1,10 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 type Props = {
   sign: "+" | "-";
   onClickCount: () => void;
+  disabled: boolean;
 };
 
 const SCountButton = styled.button`
@@ -18,30 +19,53 @@ const SCountButton = styled.button`
   color: #333333;
 
   &:hover {
-    opacity: 60%;
+    opacity: 80%;
   }
+
+  ${(props) =>
+    props.disabled &&
+    css`
+      opacity: 30%;
+      &:hover {
+        opacity: 30%;
+      }
+      &:active {
+        opacity: 30%;
+      }
+    `}
 
   @media (max-width: 768px) {
     font-size: 18px;
 
     &:active {
-      opacity: 60%;
+      opacity: 80%;
     }
   }
 `;
 
 export const CountButton: React.FC<Props> = (props) => {
-  const { sign, onClickCount } = props;
+  const { sign, onClickCount, disabled } = props;
 
   return (
     <>
-      <SCountButton
-        type="button"
-        onClick={onClickCount}
-        onTouchStart={() => ""}
-      >
-        {sign}
-      </SCountButton>
+      {disabled ? (
+        <SCountButton
+          type="button"
+          onClick={onClickCount}
+          onTouchStart={() => ""}
+          disabled
+        >
+          {sign}
+        </SCountButton>
+      ) : (
+        <SCountButton
+          type="button"
+          onClick={onClickCount}
+          onTouchStart={() => ""}
+        >
+          {sign}
+        </SCountButton>
+      )}
     </>
   );
 };
