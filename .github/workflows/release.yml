@@ -1,0 +1,13 @@
+name: Automatic Release
+on:
+  push:
+    branch:
+      - main
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: npm run test
+      - name: release
+        run: npm run deploy
