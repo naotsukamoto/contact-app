@@ -16,5 +16,7 @@ jobs:
         run: npm install
       - name: test
         run: npm run test
+        env:
+          GCP_SA_KEY: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: release
         run: npm run deploy
