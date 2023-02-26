@@ -170,7 +170,7 @@ export const Home: React.FC = memo(() => {
             contactsDocRef,
             sign === "+"
               ? {
-                  right_eye: stockofContactsData?.right_eye + 1,
+                  right_eye: stockofContactsData.right_eye + 1,
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye,
                     stockofContactsData.right_eye + 1,
@@ -178,8 +178,12 @@ export const Home: React.FC = memo(() => {
                   ),
                 }
               : {
-                  right_eye: stockofContactsData?.right_eye - 1,
-                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  right_eye: stockofContactsData.right_eye - 1,
+                  exchangeDay:
+                    stockofContactsData.right_eye - 1 <
+                    stockofContactsData.left_eye
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : stockofContactsData.exchangeDay,
                   exchangeDayRight: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye,
@@ -240,7 +244,11 @@ export const Home: React.FC = memo(() => {
                 }
               : {
                   left_eye: stockofContactsData?.left_eye - 1,
-                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  exchangeDay:
+                    stockofContactsData.left_eye - 1 <
+                    stockofContactsData.right_eye
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : stockofContactsData.exchangeDay,
                   exchangeDayLeft: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye - 1,
