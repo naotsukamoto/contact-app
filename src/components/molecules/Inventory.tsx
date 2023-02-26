@@ -5,12 +5,12 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { CountButton } from "../atoms/CountButton";
 import { SBox } from "./ExchangeDay";
 
-const SSplitBox = styled.div`
+export const SSplitBox = styled.div`
   display: flex;
   justify-content: center;
 `;
 
-const SRow = styled.div`
+export const SRow = styled.div`
   margin: 8px;
   width: 100%;
 

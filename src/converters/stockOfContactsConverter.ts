@@ -27,6 +27,8 @@ export const stockOfContactsConverter: FirestoreDataConverter<StockOfContacts> =
       return {
         id: data.id,
         exchangeDay: data.exchangeDay,
+        exchangeDayRight: data.exchangeDayRight,
+        exchangeDayLeft: data.exchangeDayLeft,
         left_eye: data.left_eye,
         right_eye: data.right_eye,
         updated_at: data.updated_at,

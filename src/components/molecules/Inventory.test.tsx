@@ -14,6 +14,8 @@ describe("Inventory", () => {
       {
         id: "1",
         exchangeDay: Timestamp.fromDate(dt),
+        exchangeDayRight: Timestamp.fromDate(dt),
+        exchangeDayLeft: Timestamp.fromDate(dt),
         left_eye: 2,
         right_eye: 4,
         updated_at: Timestamp.fromDate(dt),

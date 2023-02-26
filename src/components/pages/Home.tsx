@@ -48,6 +48,9 @@ export const Home: React.FC = memo(() => {
   // サブコレクションのドキュメントIDを格納するstateを作成
   const [subCollectionId, setSubCollectionId] = useState<string>("");
 
+  // コンタクトレンズの管理方法を格納するstateを作成
+  const [contactManageType, setContactManageType] = useState<number>(0);
+
   // ログイン後のデータ取得
   let access: boolean = false;
 
@@ -64,6 +67,9 @@ export const Home: React.FC = memo(() => {
           const usersCollectionRef = collection(db, "users").withConverter(
             userConverter
           );
+
+          // settingコレクションを参照
+          const settingsCollectionRef = collection(db, "settings");
 
           // firestoreにuserが存在しなければ、新規会員として扱う
           await getDocs(
@@ -131,6 +137,17 @@ export const Home: React.FC = memo(() => {
               });
             }
           );
+
+          // コンタクトレンズの管理方法を取得
+          getDocs(
+            query(settingsCollectionRef, where("uid", "==", user.uid))
+          ).then((snapShot) => {
+            snapShot.forEach((doc) => {
+              // stateを更新する
+              // console.log("settingのデータ", doc.data().contactManageType);
+              setContactManageType(doc.data().contactManageType);
+            });
+          });
         } else {
           navigate("/");
         }
@@ -170,7 +187,7 @@ export const Home: React.FC = memo(() => {
             contactsDocRef,
             sign === "+"
               ? {
-                  right_eye: stockofContactsData?.right_eye + 1,
+                  right_eye: stockofContactsData.right_eye + 1,
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye,
                     stockofContactsData.right_eye + 1,
@@ -178,8 +195,13 @@ export const Home: React.FC = memo(() => {
                   ),
                 }
               : {
-                  right_eye: stockofContactsData?.right_eye - 1,
-                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  right_eye: stockofContactsData.right_eye - 1,
+                  exchangeDay:
+                    stockofContactsData.right_eye - 1 <
+                    stockofContactsData.left_eye
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : stockofContactsData.exchangeDay,
+                  exchangeDayRight: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye,
                     stockofContactsData.right_eye - 1,
@@ -203,6 +225,11 @@ export const Home: React.FC = memo(() => {
                     obj.right_eye - 1 < obj.left_eye && sign === "-"
                       ? Timestamp.fromDate(nextExchangeDay)
                       : obj.exchangeDay,
+                  exchangeDayRight:
+                    sign === "-"
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : obj.exchangeDayRight,
+                  exchangeDayLeft: obj.exchangeDayLeft,
                   deadLine:
                     sign === "+"
                       ? calcInventoryDeadline(
@@ -234,7 +261,12 @@ export const Home: React.FC = memo(() => {
                 }
               : {
                   left_eye: stockofContactsData?.left_eye - 1,
-                  exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  exchangeDay:
+                    stockofContactsData.left_eye - 1 <
+                    stockofContactsData.right_eye
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : stockofContactsData.exchangeDay,
+                  exchangeDayLeft: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye - 1,
                     stockofContactsData.right_eye,
@@ -257,6 +289,11 @@ export const Home: React.FC = memo(() => {
                     obj.left_eye - 1 < obj.right_eye && sign === "-"
                       ? Timestamp.fromDate(nextExchangeDay)
                       : obj.exchangeDay,
+                  exchangeDayRight: obj.exchangeDayRight,
+                  exchangeDayLeft:
+                    sign === "-"
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : obj.exchangeDayLeft,
                   deadLine:
                     sign === "+"
                       ? calcInventoryDeadline(
@@ -286,11 +323,13 @@ export const Home: React.FC = memo(() => {
   return (
     <SContainer>
       <UserName children={userInfo?.user_name} />
+      <p>コンタクト管理方法：{contactManageType}</p>
       <ExchangeDay
         stockOfContacts={stockOfContacts}
         collectionId={collectionId}
         subCollectionId={subCollectionId}
         setStockOfContacts={setStockOfContacts}
+        contactManageType={contactManageType}
       />
       <br />
       <Inventory
