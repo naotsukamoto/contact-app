@@ -48,6 +48,9 @@ export const Home: React.FC = memo(() => {
   // サブコレクションのドキュメントIDを格納するstateを作成
   const [subCollectionId, setSubCollectionId] = useState<string>("");
 
+  // コンタクトレンズの管理方法を格納するstateを作成
+  const [contactManageType, setContactManageType] = useState<number>(0);
+
   // ログイン後のデータ取得
   let access: boolean = false;
 
@@ -64,6 +67,9 @@ export const Home: React.FC = memo(() => {
           const usersCollectionRef = collection(db, "users").withConverter(
             userConverter
           );
+
+          // settingコレクションを参照
+          const settingsCollectionRef = collection(db, "settings");
 
           // firestoreにuserが存在しなければ、新規会員として扱う
           await getDocs(
@@ -131,6 +137,17 @@ export const Home: React.FC = memo(() => {
               });
             }
           );
+
+          // コンタクトレンズの管理方法を取得
+          getDocs(
+            query(settingsCollectionRef, where("uid", "==", user.uid))
+          ).then((snapShot) => {
+            snapShot.forEach((doc) => {
+              // stateを更新する
+              // console.log("settingのデータ", doc.data().contactManageType);
+              setContactManageType(doc.data().contactManageType);
+            });
+          });
         } else {
           navigate("/");
         }
@@ -306,11 +323,13 @@ export const Home: React.FC = memo(() => {
   return (
     <SContainer>
       <UserName children={userInfo?.user_name} />
+      <p>コンタクト管理方法：{contactManageType}</p>
       <ExchangeDay
         stockOfContacts={stockOfContacts}
         collectionId={collectionId}
         subCollectionId={subCollectionId}
         setStockOfContacts={setStockOfContacts}
+        contactManageType={contactManageType}
       />
       <br />
       <Inventory

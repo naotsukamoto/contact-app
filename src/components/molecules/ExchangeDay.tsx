@@ -10,6 +10,7 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
 import { QuestionTooltip } from "../atoms/QuestionTooltip";
+import { SRow, SSplitBox } from "./Inventory";
 
 export const SBox = styled.div`
   width: 30%;
@@ -52,12 +53,18 @@ type Props = {
   collectionId: string;
   subCollectionId: string;
   setStockOfContacts: React.Dispatch<React.SetStateAction<StockOfContacts[]>>;
+  contactManageType: number;
 };
 
 export const ExchangeDay: React.FC<Props> = memo((props) => {
   console.log("Exchangeday.tsxがレンダリングされた");
-  const { stockOfContacts, collectionId, subCollectionId, setStockOfContacts } =
-    props;
+  const {
+    stockOfContacts,
+    collectionId,
+    subCollectionId,
+    setStockOfContacts,
+    contactManageType,
+  } = props;
 
   // 交換日の設定
   const onChangeDate = async (
@@ -231,23 +238,29 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
-          <p>全体</p>
-          <InputDate
-            dt={s.exchangeDay.toDate()}
-            onChangeDate={(e) => onChangeDate(e, "Both")}
-          />
-          <br />
-          <span>左</span>
-          <span>右</span>
-          <br />
-          <InputDate
-            dt={s.exchangeDayLeft.toDate()}
-            onChangeDate={(e) => onChangeDate(e, "L")}
-          />
-          <InputDate
-            dt={s.exchangeDayRight.toDate()}
-            onChangeDate={(e) => onChangeDate(e, "R")}
-          />
+          {contactManageType === 1 ? (
+            <SSplitBox>
+              <SRow>
+                <p>左</p>
+                <InputDate
+                  dt={s.exchangeDayLeft.toDate()}
+                  onChangeDate={(e) => onChangeDate(e, "L")}
+                />
+              </SRow>
+              <SRow>
+                <p>右</p>
+                <InputDate
+                  dt={s.exchangeDayRight.toDate()}
+                  onChangeDate={(e) => onChangeDate(e, "R")}
+                />
+              </SRow>
+            </SSplitBox>
+          ) : (
+            <InputDate
+              dt={s.exchangeDay.toDate()}
+              onChangeDate={(e) => onChangeDate(e, "Both")}
+            />
+          )}
 
           <SFlexRight>
             <SInventoryDeadline>
