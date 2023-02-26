@@ -60,9 +60,13 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
     props;
 
   // 交換日の設定
-  const onChangeDate = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeDate = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "Both" | "R" | "L"
+  ) => {
     console.log(
-      `onChangeDateが実行されて、交換日が${e.target.value}に変更された`
+      `onChangeDateが実行されて、交換日が${e.target.value}に変更された`,
+      type
     );
 
     // firestoreへの参照
@@ -81,48 +85,132 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       new Date()
     );
 
-    // update前の交換日と在庫期限を取得
+    // update前の在庫期限を取得
     const currentDeadLine: Date | undefined = stockOfContacts
       .find((e) => e.id === subCollectionId)
       ?.deadLine.toDate();
+
+    // update前のupdateするコンタクトの日付typeによって取得
     const currentExchangeDay: Date | undefined = stockOfContacts
       .find((e) => e.id === subCollectionId)
       ?.exchangeDay.toDate();
+    const currentExchangeDayRight: Date | undefined = stockOfContacts
+      .find((e) => e.id === subCollectionId)
+      ?.exchangeDayRight.toDate();
+    const currentExchangeDayLeft: Date | undefined = stockOfContacts
+      .find((e) => e.id === subCollectionId)
+      ?.exchangeDayLeft.toDate();
 
     // 交換日に、resetExchangeDayをTimestampに変換してupdateする
-    if (
-      typeof currentDeadLine !== "undefined" &&
-      typeof currentExchangeDay !== "undefined"
-    ) {
-      // updateされた日付差分を抽出
-      currentDeadLine?.setDate(
-        currentDeadLine.getDate() +
-          differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
-      );
+    switch (type) {
+      case "Both":
+        if (
+          typeof currentDeadLine !== "undefined" &&
+          typeof currentExchangeDay !== "undefined"
+        ) {
+          // updateされた日付差分を抽出
+          currentDeadLine?.setDate(
+            currentDeadLine.getDate() +
+              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
+          );
 
-      // DBアップデート
-      await updateDoc(contactsDocRef, {
-        exchangeDay: Timestamp.fromDate(updatedExchangeDay),
-        deadLine: Timestamp.fromDate(currentDeadLine),
-      });
+          // DBアップデート
+          await updateDoc(contactsDocRef, {
+            exchangeDay: Timestamp.fromDate(updatedExchangeDay),
+            deadLine: Timestamp.fromDate(currentDeadLine),
+          });
 
-      // state更新
-      setStockOfContacts((prevState: Array<StockOfContacts>) =>
-        prevState.map((obj: StockOfContacts) =>
-          obj.id === subCollectionId
-            ? {
-                id: obj.id,
-                left_eye: obj.left_eye,
-                right_eye: obj.right_eye,
-                updated_at: obj.updated_at,
-                exchangeDay: Timestamp.fromDate(updatedExchangeDay),
-                exchangeDayRight: obj.exchangeDayRight,
-                exchangeDayLeft: obj.exchangeDayLeft,
-                deadLine: Timestamp.fromDate(currentDeadLine),
-              }
-            : obj
-        )
-      );
+          // state更新
+          setStockOfContacts((prevState: Array<StockOfContacts>) =>
+            prevState.map((obj: StockOfContacts) =>
+              obj.id === subCollectionId
+                ? {
+                    id: obj.id,
+                    left_eye: obj.left_eye,
+                    right_eye: obj.right_eye,
+                    updated_at: obj.updated_at,
+                    exchangeDay: Timestamp.fromDate(updatedExchangeDay),
+                    exchangeDayRight: obj.exchangeDayRight,
+                    exchangeDayLeft: obj.exchangeDayLeft,
+                    deadLine: Timestamp.fromDate(currentDeadLine),
+                  }
+                : obj
+            )
+          );
+        }
+        break;
+      case "R":
+        if (
+          typeof currentDeadLine !== "undefined" &&
+          typeof currentExchangeDay !== "undefined"
+        ) {
+          // updateされた日付差分を抽出
+          currentDeadLine?.setDate(
+            currentDeadLine.getDate() +
+              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
+          );
+
+          // DBアップデート
+          await updateDoc(contactsDocRef, {
+            exchangeDayRight: Timestamp.fromDate(updatedExchangeDay),
+            deadLine: Timestamp.fromDate(currentDeadLine),
+          });
+
+          // state更新
+          setStockOfContacts((prevState: Array<StockOfContacts>) =>
+            prevState.map((obj: StockOfContacts) =>
+              obj.id === subCollectionId
+                ? {
+                    id: obj.id,
+                    left_eye: obj.left_eye,
+                    right_eye: obj.right_eye,
+                    updated_at: obj.updated_at,
+                    exchangeDay: obj.exchangeDay,
+                    exchangeDayRight: Timestamp.fromDate(updatedExchangeDay),
+                    exchangeDayLeft: obj.exchangeDayLeft,
+                    deadLine: Timestamp.fromDate(currentDeadLine),
+                  }
+                : obj
+            )
+          );
+        }
+        break;
+      case "L":
+        if (
+          typeof currentDeadLine !== "undefined" &&
+          typeof currentExchangeDay !== "undefined"
+        ) {
+          // updateされた日付差分を抽出
+          currentDeadLine?.setDate(
+            currentDeadLine.getDate() +
+              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
+          );
+
+          // DBアップデート
+          await updateDoc(contactsDocRef, {
+            exchangeDayLeft: Timestamp.fromDate(updatedExchangeDay),
+            deadLine: Timestamp.fromDate(currentDeadLine),
+          });
+
+          // state更新
+          setStockOfContacts((prevState: Array<StockOfContacts>) =>
+            prevState.map((obj: StockOfContacts) =>
+              obj.id === subCollectionId
+                ? {
+                    id: obj.id,
+                    left_eye: obj.left_eye,
+                    right_eye: obj.right_eye,
+                    updated_at: obj.updated_at,
+                    exchangeDay: obj.exchangeDay,
+                    exchangeDayRight: obj.exchangeDayRight,
+                    exchangeDayLeft: Timestamp.fromDate(updatedExchangeDay),
+                    deadLine: Timestamp.fromDate(currentDeadLine),
+                  }
+                : obj
+            )
+          );
+        }
+        break;
     }
   };
 
@@ -144,17 +232,23 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
           <p>全体</p>
-          <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
-          <p>右</p>
           <InputDate
-            dt={s.exchangeDayRight.toDate()}
-            onChangeDate={onChangeDate}
+            dt={s.exchangeDay.toDate()}
+            onChangeDate={(e) => onChangeDate(e, "Both")}
           />
-          <p>左</p>
+          <br />
+          <span>左</span>
+          <span>右</span>
+          <br />
           <InputDate
             dt={s.exchangeDayLeft.toDate()}
-            onChangeDate={onChangeDate}
+            onChangeDate={(e) => onChangeDate(e, "L")}
           />
+          <InputDate
+            dt={s.exchangeDayRight.toDate()}
+            onChangeDate={(e) => onChangeDate(e, "R")}
+          />
+
           <SFlexRight>
             <SInventoryDeadline>
               在庫期限:
