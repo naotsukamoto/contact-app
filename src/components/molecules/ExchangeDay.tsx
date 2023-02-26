@@ -116,6 +116,8 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
                 right_eye: obj.right_eye,
                 updated_at: obj.updated_at,
                 exchangeDay: Timestamp.fromDate(updatedExchangeDay),
+                exchangeDayRight: obj.exchangeDayRight,
+                exchangeDayLeft: obj.exchangeDayLeft,
                 deadLine: Timestamp.fromDate(currentDeadLine),
               }
             : obj
@@ -141,7 +143,18 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       </SFlexCenter>
       {stockOfContacts.map((s: StockOfContacts) => (
         <div key={s.id}>
+          <p>全体</p>
           <InputDate dt={s.exchangeDay.toDate()} onChangeDate={onChangeDate} />
+          <p>右</p>
+          <InputDate
+            dt={s.exchangeDayRight.toDate()}
+            onChangeDate={onChangeDate}
+          />
+          <p>左</p>
+          <InputDate
+            dt={s.exchangeDayLeft.toDate()}
+            onChangeDate={onChangeDate}
+          />
           <SFlexRight>
             <SInventoryDeadline>
               在庫期限:

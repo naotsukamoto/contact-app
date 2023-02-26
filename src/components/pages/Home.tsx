@@ -180,6 +180,7 @@ export const Home: React.FC = memo(() => {
               : {
                   right_eye: stockofContactsData?.right_eye - 1,
                   exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  exchangeDayRight: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye,
                     stockofContactsData.right_eye - 1,
@@ -203,6 +204,11 @@ export const Home: React.FC = memo(() => {
                     obj.right_eye - 1 < obj.left_eye && sign === "-"
                       ? Timestamp.fromDate(nextExchangeDay)
                       : obj.exchangeDay,
+                  exchangeDayRight:
+                    sign === "-"
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : obj.exchangeDayRight,
+                  exchangeDayLeft: obj.exchangeDayLeft,
                   deadLine:
                     sign === "+"
                       ? calcInventoryDeadline(
@@ -235,6 +241,7 @@ export const Home: React.FC = memo(() => {
               : {
                   left_eye: stockofContactsData?.left_eye - 1,
                   exchangeDay: Timestamp.fromDate(nextExchangeDay),
+                  exchangeDayLeft: Timestamp.fromDate(nextExchangeDay),
                   deadLine: calcInventoryDeadline(
                     stockofContactsData.left_eye - 1,
                     stockofContactsData.right_eye,
@@ -257,6 +264,11 @@ export const Home: React.FC = memo(() => {
                     obj.left_eye - 1 < obj.right_eye && sign === "-"
                       ? Timestamp.fromDate(nextExchangeDay)
                       : obj.exchangeDay,
+                  exchangeDayRight: obj.exchangeDayRight,
+                  exchangeDayLeft:
+                    sign === "-"
+                      ? Timestamp.fromDate(nextExchangeDay)
+                      : obj.exchangeDayLeft,
                   deadLine:
                     sign === "+"
                       ? calcInventoryDeadline(
