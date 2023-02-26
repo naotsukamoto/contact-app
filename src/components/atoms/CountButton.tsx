@@ -29,17 +29,18 @@ const SCountButton = styled.button`
       &:hover {
         opacity: 30%;
       }
-      &:active {
-        opacity: 30%;
-      }
     `}
 
   @media (max-width: 768px) {
     font-size: 18px;
 
-    &:active {
-      opacity: 80%;
-    }
+    ${(props) =>
+      props.disabled === false &&
+      css`
+        &:active {
+          opacity: 80%;
+        }
+      `}
   }
 `;
 
