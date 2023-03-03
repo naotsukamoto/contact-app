@@ -6,6 +6,7 @@ import { Login } from "../pages/Login";
 import { Signup } from "../pages/Signup";
 import { Title } from "../molecules/Title";
 import { RouteAuthGuard } from "./RouteAuthGuard";
+import { Settings } from "../pages/Settings";
 
 export const Router: React.FC = memo(() => {
   return (
@@ -17,6 +18,10 @@ export const Router: React.FC = memo(() => {
         <Route
           path="home"
           element={<RouteAuthGuard component={<Home />} redirect="/" />}
+        ></Route>
+        <Route
+          path="settings"
+          element={<RouteAuthGuard component={<Settings />} redirect="/" />}
         ></Route>
       </Routes>
     </>
