@@ -3,6 +3,7 @@ import { ToastContainer } from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.min.css";
 import styled from "styled-components";
+import { RecoilRoot } from "recoil";
 
 import { Router } from "./components/router/Router";
 
@@ -17,10 +18,12 @@ const SMain = styled.div`
 function App() {
   return (
     <SMain>
-      <BrowserRouter>
-        <Router />
-      </BrowserRouter>
-      <ToastContainer />
+      <RecoilRoot>
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
+        <ToastContainer />
+      </RecoilRoot>
     </SMain>
   );
 }

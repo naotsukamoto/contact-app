@@ -315,7 +315,7 @@ export const Home: React.FC = memo(() => {
     [collectionId, subCollectionId]
   );
 
-  const onClickSetting = useCallback(() => {
+  const onClickToSettings = useCallback(() => {
     navigate("/settings");
   }, []);
 
@@ -341,7 +341,7 @@ export const Home: React.FC = memo(() => {
         onClickCount={onClickCount}
       />
       <br />
-      <Button name="設定" onClick={onClickSetting} />
+      <Button name="設定" onClick={onClickToSettings} />
       <Button name="ログアウト" onClick={onClickSignOut} />
     </SContainer>
   );
