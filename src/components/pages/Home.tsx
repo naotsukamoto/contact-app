@@ -315,6 +315,10 @@ export const Home: React.FC = memo(() => {
     [collectionId, subCollectionId]
   );
 
+  const onClickSetting = useCallback(() => {
+    navigate("/settings");
+  }, []);
+
   const onClickSignOut = useCallback(() => {
     signOut(auth);
     toastFunc("success", "ログアウトしました");
@@ -337,6 +341,7 @@ export const Home: React.FC = memo(() => {
         onClickCount={onClickCount}
       />
       <br />
+      <Button name="設定" onClick={onClickSetting} />
       <Button name="ログアウト" onClick={onClickSignOut} />
     </SContainer>
   );
