@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
@@ -27,6 +28,7 @@ import { UserDocument } from "../../types/UserDocument";
 import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
 import { toastFunc } from "../../utils/toastFunc";
 import { UserName } from "../atoms/UserName";
+import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 
 const SContainer = styled.div`
   text-align: center;
@@ -49,7 +51,9 @@ export const Home: React.FC = memo(() => {
   const [subCollectionId, setSubCollectionId] = useState<string>("");
 
   // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType, setContactManageType] = useState<number>(0);
+  const [contactManageType, setContactManageType] = useRecoilState(
+    contactManageTypeAtom
+  );
 
   // ログイン後のデータ取得
   let access: boolean = false;
@@ -107,36 +111,36 @@ export const Home: React.FC = memo(() => {
           });
 
           // queryのwhereクエリ演算子を使ってドキュメント情報を取得
-          getDocs(query(usersCollectionRef, where("uid", "==", user.uid))).then(
-            (snapShot) => {
-              console.log("データの表示を開始します");
-              snapShot.forEach(async (doc) => {
-                // ここで対象ユーザーのドキュメントのIDを取得
-                setCollectionId(doc.id);
-                // サブコレクションを取得
-                const subCollectionSnapShot = await getDocs(
-                  collection(
-                    db,
-                    "users",
-                    doc.id,
-                    "stock_of_contacts"
-                  ).withConverter(stockOfContactsConverter)
-                );
+          await getDocs(
+            query(usersCollectionRef, where("uid", "==", user.uid))
+          ).then((snapShot) => {
+            console.log("データの表示を開始します");
+            snapShot.forEach(async (doc) => {
+              // ここで対象ユーザーのドキュメントのIDを取得
+              setCollectionId(doc.id);
+              // サブコレクションを取得
+              const subCollectionSnapShot = await getDocs(
+                collection(
+                  db,
+                  "users",
+                  doc.id,
+                  "stock_of_contacts"
+                ).withConverter(stockOfContactsConverter)
+              );
 
-                subCollectionSnapShot.forEach((s) => {
-                  currentUserstockOfContacts.push({ ...s.data(), id: s.id });
-                  // ここで対象ユーザーのstock_of_contactsのサブコレクションのIDを取得
-                  setSubCollectionId(s.id);
-                });
-
-                // state更新
-                setStockOfContacts(currentUserstockOfContacts);
-
-                currentUser = doc.data();
-                setUserInfo(currentUser);
+              subCollectionSnapShot.forEach((s) => {
+                currentUserstockOfContacts.push({ ...s.data(), id: s.id });
+                // ここで対象ユーザーのstock_of_contactsのサブコレクションのIDを取得
+                setSubCollectionId(s.id);
               });
-            }
-          );
+
+              // state更新
+              setStockOfContacts(currentUserstockOfContacts);
+
+              currentUser = doc.data();
+              setUserInfo(currentUser);
+            });
+          });
 
           // コンタクトレンズの管理方法を取得
           getDocs(
