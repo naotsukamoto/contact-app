@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import {
   collection,
   getDocs,
@@ -18,39 +18,55 @@ import { SettingWithToggle } from "../molecules/SettingWithToogle";
 import { auth, db } from "../../firebase";
 import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 import { userInfoAtom } from "../../grobalStates/userInfoAtom";
+import { userConverter } from "../../converters/userConverter";
 
 const SContainer = styled.div`
   text-align: center;
 `;
 
-export const Settings: React.FC = () => {
+export const Settings: React.FC = memo(() => {
   // 未ログイン時のリダイレクトnavigate
   const navigate = useNavigate();
 
   // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType, setContactManageType] = useRecoilState(
-    contactManageTypeAtom
-  );
+  const setContactManageType = useSetRecoilState(contactManageTypeAtom);
+
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
 
   // settingコレクションを参照
   const settingsCollectionRef = collection(db, "settings");
 
+  // usersコレクションを参照
+  const usersCollectionRef = collection(db, "users").withConverter(
+    userConverter
+  );
+
   // settingsアクセス後のデータ取得
   let access: boolean = false;
+
   // ページアクセス時はfirebaseから情報を取得する
   useEffect(() => {
     if (!access) {
+      console.log("Settingsがレンダリングされた");
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           // コンタクトレンズの管理方法を取得
-          getDocs(
+          await getDocs(
             query(settingsCollectionRef, where("uid", "==", user.uid))
           ).then((snapShot) => {
             snapShot.forEach((doc) => {
               // stateを更新する
               setContactManageType(doc.data().contactManageType);
+            });
+          });
+
+          // userInfoを更新
+          await getDocs(
+            query(usersCollectionRef, where("uid", "==", user.uid))
+          ).then((snapShot) => {
+            snapShot.forEach((doc) => {
+              setUserInfo(doc.data());
             });
           });
         } else {
@@ -62,7 +78,7 @@ export const Settings: React.FC = () => {
     return () => {
       access = true;
     };
-  });
+  }, []);
 
   // toggleのONのOFFによって実行される関数
   const handleChange = useCallback(() => {
@@ -71,15 +87,9 @@ export const Settings: React.FC = () => {
 
     // firestoreを更新する
     getDocs(
-      //   query(settingsCollectionRef, where("uid", "==", userInfo.uid))
-      query(
-        settingsCollectionRef,
-        where("uid", "==", "QPb7HajAY4PqQ0ZKTOsW1s9Aj7E2")
-      )
+      query(settingsCollectionRef, where("uid", "==", userInfo.uid))
     ).then((snapShot) => {
       snapShot.forEach((d) => {
-        // stateを更新する
-        // console.log("settingのデータ", doc.data().contactManageType);
         updateDoc(doc(settingsCollectionRef, d.id), {
           contactManageType: d.data().contactManageType === 0 ? 1 : 0,
         });
@@ -90,11 +100,10 @@ export const Settings: React.FC = () => {
   return (
     <SContainer>
       <p>Settings</p>
-      {contactManageType}
       <SettingWithToggle
         settingContent="コンタクト交換日を右左それぞれ設定できるようにする"
         handleChange={handleChange}
       />
     </SContainer>
   );
-};
+});
