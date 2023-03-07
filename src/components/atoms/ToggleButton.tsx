@@ -10,7 +10,7 @@ const SToggleButton = styled.div`
   & input {
     display: none;
     &:checked + label {
-      background-color: #ff9933;
+      background-color: lime;
       &::before {
         left: 2em;
       }
@@ -18,7 +18,7 @@ const SToggleButton = styled.div`
   }
 
   & label {
-    background-color: #003366;
+    background-color: #dbdbdb;
     border-radius: 2em;
     border: 2px solid var(--text-color);
     display: flex;
