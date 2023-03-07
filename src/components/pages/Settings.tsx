@@ -19,6 +19,7 @@ import { auth, db } from "../../firebase";
 import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 import { userInfoAtom } from "../../grobalStates/userInfoAtom";
 import { userConverter } from "../../converters/userConverter";
+import { Button } from "../atoms/Button";
 
 const SContainer = styled.div`
   text-align: center;
@@ -97,6 +98,10 @@ export const Settings: React.FC = memo(() => {
     });
   }, []);
 
+  const onClickToHome = useCallback(() => {
+    navigate("/home");
+  }, []);
+
   return (
     <SContainer>
       <p>Settings</p>
@@ -104,6 +109,8 @@ export const Settings: React.FC = memo(() => {
         settingContent="コンタクト交換日を右左それぞれ設定できるようにする"
         handleChange={handleChange}
       />
+      <br />
+      <Button name="戻る" onClick={onClickToHome} />
     </SContainer>
   );
 });
