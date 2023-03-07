@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Home } from "../pages/Home";
@@ -21,7 +21,16 @@ export const Router: React.FC = memo(() => {
         ></Route>
         <Route
           path="settings"
-          element={<RouteAuthGuard component={<Settings />} redirect="/" />}
+          element={
+            <RouteAuthGuard
+              component={
+                <Suspense fallback={<p>Loading....</p>}>
+                  <Settings />
+                </Suspense>
+              }
+              redirect="/"
+            />
+          }
         ></Route>
       </Routes>
     </>

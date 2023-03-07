@@ -1,5 +1,8 @@
 import React, { memo } from "react";
 import styled from "styled-components";
+import { useRecoilState } from "recoil";
+
+import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 
 const SToggleButton = styled.div`
   margin-left: 8px;
@@ -60,10 +63,24 @@ type Props = {
 
 export const ToggleButton: React.FC<Props> = memo((props) => {
   const { handleChange } = props;
+
+  // コンタクトレンズの管理方法を格納するstateを作成
+  const [contactManageType] = useRecoilState(contactManageTypeAtom);
+
   return (
     <>
       <SToggleButton>
-        <input id="btn-mode" type="checkbox" onChange={handleChange} />
+        {contactManageType === 0 ? (
+          <input id="btn-mode" type="checkbox" onChange={handleChange} />
+        ) : (
+          <input
+            id="btn-mode"
+            type="checkbox"
+            onChange={handleChange}
+            checked
+          />
+        )}
+
         <label htmlFor="btn-mode"></label>
       </SToggleButton>
     </>
