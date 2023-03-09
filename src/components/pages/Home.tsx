@@ -331,7 +331,6 @@ export const Home: React.FC = memo(() => {
   return (
     <SContainer>
       <UserName children={userInfo?.user_name} />
-      <p>コンタクト管理方法：{contactManageType}</p>
       <ExchangeDay
         stockOfContacts={stockOfContacts}
         collectionId={collectionId}
@@ -346,7 +345,7 @@ export const Home: React.FC = memo(() => {
       />
       <br />
       <Button name="設定" onClick={onClickToSettings} />
-      <Button name="ログアウト" onClick={onClickSignOut} />
+      <Button name="Sign Out" onClick={onClickSignOut} />
     </SContainer>
   );
 });

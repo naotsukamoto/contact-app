@@ -62,7 +62,7 @@ export const Login: React.FC = memo(() => {
 
       // firebaseを使ったログイン認証のロジック
       // ポップアップを出す
-      signInWithPopup(auth, provider)
+      await signInWithPopup(auth, provider)
         // await signInWithRedirect(auth, provider);
         // getRedirectResult(auth, provider)
         .then((result) => {
@@ -97,16 +97,21 @@ export const Login: React.FC = memo(() => {
         <SContainer>
           <p>Sign In</p>
           <Button
-            name="Twitterでログイン"
+            name="TwitterでSign Inする"
             img={`${process.env.PUBLIC_URL}/assets/Twitter_social_icons_rounded_square_blue.png`}
             onClick={() => onClickLogin(twitterAuthProvider)}
           />
           <Button
-            name="Googleでログイン"
+            name="GoogleでSign Inする"
             img={`${process.env.PUBLIC_URL}/assets/btn_google_light_pressed_ios@2x.png`}
             onClick={() => onClickLogin(googleAuthProvider)}
           />
-          <SText>※SNSログインは順次追加予定です</SText>
+          <SText>※SNSサインインは順次追加予定です</SText>
+          <SText>
+            ※サインインに失敗した場合は、
+            <br />
+            アプリをリフレッシュしてからアクセスください
+          </SText>
         </SContainer>
       )}
     </>
