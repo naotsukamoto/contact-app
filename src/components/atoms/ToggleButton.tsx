@@ -71,16 +71,20 @@ export const ToggleButton: React.FC<Props> = memo((props) => {
     <>
       <SToggleButton>
         {contactManageType === 0 ? (
-          <input id="btn-mode" type="checkbox" onChange={handleChange} />
+          <input
+            id="btn-mode"
+            type="checkbox"
+            onChange={handleChange}
+            checked={false}
+          />
         ) : (
           <input
             id="btn-mode"
             type="checkbox"
             onChange={handleChange}
-            checked
+            checked={true}
           />
         )}
-
         <label htmlFor="btn-mode"></label>
       </SToggleButton>
     </>
