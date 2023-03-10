@@ -1,23 +1,8 @@
 import React, { memo } from "react";
-import styled from "styled-components";
 
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { CountButton } from "../atoms/CountButton";
-import { SBox } from "./ExchangeDay";
-
-export const SSplitBox = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-export const SRow = styled.div`
-  margin: 8px;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    margin: 4px;
-  }
-`;
+import { SBox, SRow, SSplitBox } from "../styles/Elements";
 
 type Props = {
   stockOfContacts: Array<StockOfContacts>;

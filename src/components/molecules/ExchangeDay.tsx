@@ -10,21 +10,7 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
 import { QuestionTooltip } from "../atoms/QuestionTooltip";
-import { SRow, SSplitBox } from "./Inventory";
-
-export const SBox = styled.div`
-  width: 30%;
-  margin: 0 auto;
-  margin-top: 16px;
-  padding: 16px 16px 8px 16px;
-  border-radius: 8px;
-  background: #fff;
-
-  @media (max-width: 768px) {
-    width: 85%;
-    padding: 4px 4px 0px 4px;
-  }
-`;
+import { SBox, SRow, SSplitBox } from "../styles/Elements";
 
 const SInventoryDeadline = styled.p`
   color: gray;
@@ -149,14 +135,20 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       case "R":
         if (
           typeof currentDeadLine !== "undefined" &&
-          typeof currentExchangeDay !== "undefined"
+          typeof currentExchangeDayRight !== "undefined" &&
+          typeof currentExchangeDayLeft !== "undefined"
         ) {
-          // updateされた日付差分を抽出
-          currentDeadLine?.setDate(
-            currentDeadLine.getDate() +
-              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
-          );
-
+          // 更新した右の交換日のほうが左の交換日より小さい場合のみ、在庫期限を更新する
+          if (updatedExchangeDay < currentExchangeDayLeft) {
+            // updateされた日付差分を抽出
+            currentDeadLine?.setDate(
+              currentDeadLine.getDate() +
+                differenceInCalendarDays(
+                  updatedExchangeDay,
+                  currentExchangeDayRight
+                )
+            );
+          }
           // DBアップデート
           await updateDoc(contactsDocRef, {
             exchangeDayRight: Timestamp.fromDate(updatedExchangeDay),
@@ -185,14 +177,20 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       case "L":
         if (
           typeof currentDeadLine !== "undefined" &&
-          typeof currentExchangeDay !== "undefined"
+          typeof currentExchangeDayLeft !== "undefined" &&
+          typeof currentExchangeDayRight !== "undefined"
         ) {
-          // updateされた日付差分を抽出
-          currentDeadLine?.setDate(
-            currentDeadLine.getDate() +
-              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
-          );
-
+          // 更新した左の交換日のほうが右の交換日より小さい場合のみ、在庫期限を更新する
+          if (updatedExchangeDay < currentExchangeDayRight) {
+            // updateされた日付差分を抽出
+            currentDeadLine?.setDate(
+              currentDeadLine.getDate() +
+                differenceInCalendarDays(
+                  updatedExchangeDay,
+                  currentExchangeDayLeft
+                )
+            );
+          }
           // DBアップデート
           await updateDoc(contactsDocRef, {
             exchangeDayLeft: Timestamp.fromDate(updatedExchangeDay),

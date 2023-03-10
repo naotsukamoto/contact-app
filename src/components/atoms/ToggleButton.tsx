@@ -10,7 +10,7 @@ const SToggleButton = styled.div`
   & input {
     display: none;
     &:checked + label {
-      background-color: #ff9933;
+      background-color: lime;
       &::before {
         left: 2em;
       }
@@ -18,7 +18,7 @@ const SToggleButton = styled.div`
   }
 
   & label {
-    background-color: #003366;
+    background-color: #dbdbdb;
     border-radius: 2em;
     border: 2px solid var(--text-color);
     display: flex;
@@ -71,16 +71,20 @@ export const ToggleButton: React.FC<Props> = memo((props) => {
     <>
       <SToggleButton>
         {contactManageType === 0 ? (
-          <input id="btn-mode" type="checkbox" onChange={handleChange} />
+          <input
+            id="btn-mode"
+            type="checkbox"
+            onChange={handleChange}
+            checked={false}
+          />
         ) : (
           <input
             id="btn-mode"
             type="checkbox"
             onChange={handleChange}
-            checked
+            checked={true}
           />
         )}
-
         <label htmlFor="btn-mode"></label>
       </SToggleButton>
     </>

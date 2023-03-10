@@ -1,9 +1,9 @@
+import { Timestamp } from "firebase/firestore";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { Inventory } from "./Inventory";
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
-import { Timestamp } from "firebase/firestore";
 
 describe("Inventory", () => {
   test("Click left minus button", async () => {
