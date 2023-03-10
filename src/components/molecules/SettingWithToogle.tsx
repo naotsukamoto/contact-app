@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import styled from "styled-components";
 
 import { ToggleButton } from "../atoms/ToggleButton";
-import { SBox } from "./ExchangeDay";
+import { SBox } from "../styles/Elements";
 
 const SEachSetting = styled.div`
   display: flex;

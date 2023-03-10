@@ -10,21 +10,7 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
 import { QuestionTooltip } from "../atoms/QuestionTooltip";
-import { SRow, SSplitBox } from "./Inventory";
-
-export const SBox = styled.div`
-  width: 30%;
-  margin: 0 auto;
-  margin-top: 16px;
-  padding: 16px 16px 8px 16px;
-  border-radius: 8px;
-  background: #fff;
-
-  @media (max-width: 768px) {
-    width: 85%;
-    padding: 4px 4px 0px 4px;
-  }
-`;
+import { SBox, SRow, SSplitBox } from "../styles/Elements";
 
 const SInventoryDeadline = styled.p`
   color: gray;
