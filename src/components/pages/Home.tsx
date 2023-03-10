@@ -55,6 +55,9 @@ export const Home: React.FC = memo(() => {
     contactManageTypeAtom
   );
 
+  // 動的コンポーネントの読み込み
+  // const UserName = React.lazy(() => import("../atoms/UserName"));
+
   // ログイン後のデータ取得
   let access: boolean = false;
 

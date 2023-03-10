@@ -149,14 +149,20 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       case "R":
         if (
           typeof currentDeadLine !== "undefined" &&
-          typeof currentExchangeDay !== "undefined"
+          typeof currentExchangeDayRight !== "undefined" &&
+          typeof currentExchangeDayLeft !== "undefined"
         ) {
-          // updateされた日付差分を抽出
-          currentDeadLine?.setDate(
-            currentDeadLine.getDate() +
-              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
-          );
-
+          // 更新した右の交換日のほうが左の交換日より小さい場合のみ、在庫期限を更新する
+          if (updatedExchangeDay < currentExchangeDayLeft) {
+            // updateされた日付差分を抽出
+            currentDeadLine?.setDate(
+              currentDeadLine.getDate() +
+                differenceInCalendarDays(
+                  updatedExchangeDay,
+                  currentExchangeDayRight
+                )
+            );
+          }
           // DBアップデート
           await updateDoc(contactsDocRef, {
             exchangeDayRight: Timestamp.fromDate(updatedExchangeDay),
@@ -185,14 +191,20 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
       case "L":
         if (
           typeof currentDeadLine !== "undefined" &&
-          typeof currentExchangeDay !== "undefined"
+          typeof currentExchangeDayLeft !== "undefined" &&
+          typeof currentExchangeDayRight !== "undefined"
         ) {
-          // updateされた日付差分を抽出
-          currentDeadLine?.setDate(
-            currentDeadLine.getDate() +
-              differenceInCalendarDays(updatedExchangeDay, currentExchangeDay)
-          );
-
+          // 更新した左の交換日のほうが右の交換日より小さい場合のみ、在庫期限を更新する
+          if (updatedExchangeDay < currentExchangeDayRight) {
+            // updateされた日付差分を抽出
+            currentDeadLine?.setDate(
+              currentDeadLine.getDate() +
+                differenceInCalendarDays(
+                  updatedExchangeDay,
+                  currentExchangeDayLeft
+                )
+            );
+          }
           // DBアップデート
           await updateDoc(contactsDocRef, {
             exchangeDayLeft: Timestamp.fromDate(updatedExchangeDay),
