@@ -1,36 +1,21 @@
 // @ts-nocheck
 
-import { collection, getDocs, query } from "firebase/firestore";
 import { differenceInCalendarDays } from "date-fns";
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 
 const functions = require("firebase-functions");
 const nodemailer = require("nodemailer");
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-};
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// firestoreとの接続でDBを取得
-const db = getFirestore(app);
+// cloudfunctionsでfirestoreを利用する
+const admin = require("firebase-admin");
+const app = admin.initializeApp();
 
 // 認証情報の設定
 const auth = {
-  type: "OAuth2",
-  user: "m0naaa0u@gmail.com",
-  clientId:
-    "904944278791-sokj39cqhma8arovh35nd3rvbemrpf0m.apps.googleusercontent.com",
-  clientSecret: "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",
-  refreshToken:
-    "1//04mp4h0z_ir74CgYIARAAGAQSNwF-L9Iruvo-DBbLvuZp0ObywR8QQBagR6w7Z9SbDFeo03irlfzpd_RNurNJrZK-QcnTCpaO64Q",
+  type: process.env.REACT_APP_OAUTH_AUTH_TYPE,
+  user: process.env.REACT_APP_OAUTH_AUTH_USER,
+  clientId: process.env.REACT_APP_OAUTH_AUTH_CLIENT_ID,
+  clientSecret: process.env.REACT_APP_OAUTH_AUTH_CLIENT_SECRET,
+  refreshToken: process.env.REACT_APP_OAUTH_AUTH_REFRESH_TOKEN,
 };
 
 const transport = {
@@ -41,43 +26,69 @@ const transport = {
 // 送信に使用するメールサーバーの設定
 const transporter = nodemailer.createTransport(transport);
 
+// メール送信成功フラグと変数
+// let mailCount = 0;
+const today = new Date();
+
 exports.sendMail = functions
   .region("asia-northeast1")
   .pubsub.schedule("every 1 days")
-  .onRun(async () => {
-    await getDocs(query(collection(db, "users"))).then((snapShot) => {
-      snapShot.forEach(async (doc) => {
-        // コンタクトレンズの交換日を取得
-        const subCollection = await getDocs(
-          collection(db, "users", doc.id, "stock_of_contacts")
-        );
-        subCollection.forEach((s) => {
-          const today = new Date();
-          // もし交換日が明日より前になったら
+  .onRun(async (context) => {
+    // まず、Firestore からデータを持ってくる
+    const snapshot = await app.firestore().collection("users").get();
+    // それぞれに対してメールを送る
+    await snapshot.forEach(async (doc) => {
+      const stockSnapshot = await app
+        .firestore()
+        .collection("users")
+        .doc(doc.id)
+        .collection("stock_of_contacts")
+        .get();
+
+      stockSnapshot.forEach((s) => {
+        // もし交換日が明日より前になったら
+        if (
+          s.data().exchangeDayLeft !== undefined &&
+          s.data().exchangeDayRight !== undefined
+        ) {
           if (
             differenceInCalendarDays(
-              s.data().exchangeDayLeft.toDate(),
+              s.data().exchangeDayLeft?.toDate(),
               today
             ) <= 1 ||
             differenceInCalendarDays(
-              s.data().exchangeDayRight.toDate(),
+              s.data().exchangeDayRight?.toDate(),
               today
             ) <= 1
           ) {
             // メール情報
             const mailOptions = {
               from: "no-replay@conconcontacts.com",
-              to: doc.data().email,
+              //   to: doc.data().email,
+              to: "m0naaa0u@gmail.com",
               subject: "交換日について | ConCon",
-              text: "コンタクトレンズの交換日が近づいてきました。交換日をご確認ください。",
+              text: "コンタクトレンズの交換日が近づいているか交換日が過ぎています。ConConをご確認ください。",
             };
-
             // メール送信
             transporter.sendMail(mailOptions, (err, res) => {
               console.log(err || res);
             });
+            mailCount += 1;
           }
-        });
+        }
       });
     });
+
+    // 毎日運営にもメールを送って状況を確認する
+    const mailOptions = {
+      from: "no-replay@conconcontacts.com",
+      to: "m0naaa0u@gmail.com",
+      subject: "運営向け：定期メール送信について | ConCon",
+      text: `${today}分の定期メール送信xx件です。`,
+    };
+    transporter.sendMail(mailOptions, (err, res) => {
+      console.log(err || res);
+    });
+
+    return null;
   });
