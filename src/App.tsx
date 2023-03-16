@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.min.css";
 import styled from "styled-components";
 import { RecoilRoot } from "recoil";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 import { Router } from "./components/router/Router";
 
@@ -15,14 +16,18 @@ const SMain = styled.div`
   color: #333333;
 `;
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
     <SMain>
       <RecoilRoot>
-        <BrowserRouter>
-          <Router />
-        </BrowserRouter>
-        <ToastContainer />
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Router />
+          </BrowserRouter>
+          <ToastContainer />
+        </QueryClientProvider>
       </RecoilRoot>
     </SMain>
   );

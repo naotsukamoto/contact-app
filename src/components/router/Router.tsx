@@ -2,6 +2,7 @@ import { memo, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { Home } from "../pages/Home";
+import { Home2 } from "../pages/Home2";
 import { Login } from "../pages/Login";
 import { Signup } from "../pages/Signup";
 import { Title } from "../molecules/Title";
@@ -18,6 +19,10 @@ export const Router: React.FC = memo(() => {
         <Route
           path="home"
           element={<RouteAuthGuard component={<Home />} redirect="/" />}
+        ></Route>
+        <Route
+          path="home2"
+          element={<RouteAuthGuard component={<Home2 />} redirect="/" />}
         ></Route>
         <Route
           path="settings"
