@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.10.6",
     "@grpc/grpc-js": "^1.8.12",
     "@mui/material": "^5.11.12",
+    "@react-query-firebase/auth": "^1.0.0-dev.2",
     "@react-query-firebase/firestore": "^1.0.0-dev.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
