@@ -66,8 +66,8 @@ exports.sendMail = functions
             // メール情報
             const mailOptions = {
               from: "no-replay@conconcontacts.com",
-              //   to: doc.data().email,
-              to: "m0naaa0u@gmail.com",
+              to: doc.data().email,
+              //   to: "m0naaa0u@gmail.com",
               subject: "交換日について | ConCon",
               text: "コンタクトレンズの交換日が近づいているか交換日が過ぎています。ConConをご確認ください。",
             };
