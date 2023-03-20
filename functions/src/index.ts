@@ -30,7 +30,7 @@ exports.sendMail = functions
   .region("asia-northeast1")
   .pubsub.schedule("0 20 * * *")
   .timeZone("Asia/Tokyo")
-  .onRun(async (context) => {
+  .onRun(async () => {
     // メール送信成功フラグと変数
     let mailCount: number = 0;
     let times: number = 0;
