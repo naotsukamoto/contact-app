@@ -1,7 +1,19 @@
-import React, { memo } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import React, { memo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Button } from "../atoms/Button";
 import { Sentense } from "../atoms/Sentense";
 
 export const Guide: React.FC = memo(() => {
+  // 未ログイン時のリダイレクトnavigate
+  const navigate = useNavigate();
+
+  const onClickToHome = useCallback(() => {
+    navigate("/home");
+  }, []);
+
   return (
     <>
       <Sentense
@@ -20,11 +32,12 @@ export const Guide: React.FC = memo(() => {
         title="在庫期限の計算方法について"
         sentense="左右のうち残数が少ない方のコンタクトの数が0になる日付を表示しています。"
       ></Sentense>
-      <p>今後の機能追加について</p>
       <Sentense
-        title="(Comming Soon...)画面の背景色の変更"
-        sentense="最初にコンタクトの残りの数をセットします。次に交換日をセットします。これで利用開始の準備は完了です。"
+        title="画面の背景色の変更"
+        sentense="Comming Soon..."
       ></Sentense>
+      <br />
+      <Button name="戻る" onClick={onClickToHome} />
     </>
   );
 });
