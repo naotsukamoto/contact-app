@@ -12,6 +12,7 @@ const SButton = styled.button`
   margin-bottom: 10px;
   color: #333333;
   align-items: center;
+  justify-content: center;
 
   &:hover {
     opacity: 60%;

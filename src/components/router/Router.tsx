@@ -7,6 +7,7 @@ import { Signup } from "../pages/Signup";
 import { Title } from "../molecules/Title";
 import { RouteAuthGuard } from "./RouteAuthGuard";
 import { Settings } from "../pages/Settings";
+import { Guide } from "../pages/Guide";
 
 export const Router: React.FC = memo(() => {
   return (
@@ -26,6 +27,19 @@ export const Router: React.FC = memo(() => {
               component={
                 <Suspense fallback={<p>Loading....</p>}>
                   <Settings />
+                </Suspense>
+              }
+              redirect="/"
+            />
+          }
+        ></Route>
+        <Route
+          path="guide"
+          element={
+            <RouteAuthGuard
+              component={
+                <Suspense fallback={<p>Loading....</p>}>
+                  <Guide />
                 </Suspense>
               }
               redirect="/"
