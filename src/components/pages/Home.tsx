@@ -29,6 +29,8 @@ import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
 import { toastFunc } from "../../utils/toastFunc";
 import { UserName } from "../atoms/UserName";
 import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
+import { loadingAtom } from "../../grobalStates/loadingAtom";
+import { SkeletonComponent } from "../organisms/SkeletonComponent";
 
 const SContainer = styled.div`
   text-align: center;
@@ -37,6 +39,9 @@ const SContainer = styled.div`
 export const Home: React.FC = memo(() => {
   console.log("Home.tsxがレンダリングされた");
   const navigate = useNavigate();
+
+  // 初期読み込みのローディングsteteを作成
+  const [loading, setLoading] = useRecoilState(loadingAtom);
 
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
@@ -55,15 +60,14 @@ export const Home: React.FC = memo(() => {
     contactManageTypeAtom
   );
 
-  // 動的コンポーネントの読み込み
-  // const UserName = React.lazy(() => import("../atoms/UserName"));
-
   // ログイン後のデータ取得
   let access: boolean = false;
 
   useEffect(() => {
     if (!access) {
       console.log("useEffectがレンダリングされた");
+      setLoading(true);
+
       onAuthStateChanged(auth, async (user) => {
         console.log("onAuthStateChangedがレンダリングされた");
         if (user) {
@@ -146,7 +150,7 @@ export const Home: React.FC = memo(() => {
           });
 
           // コンタクトレンズの管理方法を取得
-          getDocs(
+          await getDocs(
             query(settingsCollectionRef, where("uid", "==", user.uid))
           ).then((snapShot) => {
             snapShot.forEach((doc) => {
@@ -155,6 +159,7 @@ export const Home: React.FC = memo(() => {
               setContactManageType(doc.data().contactManageType);
             });
           });
+          setLoading(false);
         } else {
           navigate("/");
         }
@@ -337,23 +342,29 @@ export const Home: React.FC = memo(() => {
 
   return (
     <SContainer>
-      <UserName children={userInfo?.user_name} />
-      <ExchangeDay
-        stockOfContacts={stockOfContacts}
-        collectionId={collectionId}
-        subCollectionId={subCollectionId}
-        setStockOfContacts={setStockOfContacts}
-        contactManageType={contactManageType}
-      />
-      <br />
-      <Inventory
-        stockOfContacts={stockOfContacts}
-        onClickCount={onClickCount}
-      />
-      <br />
-      <Button name="使い方ガイド" onClick={onClickToGuide} />
-      <Button name="設定" onClick={onClickToSettings} />
-      <Button name="Sign Out" onClick={onClickSignOut} />
+      {loading ? (
+        <SkeletonComponent contactManageType={contactManageType} />
+      ) : (
+        <>
+          <UserName children={userInfo?.user_name} />
+          <ExchangeDay
+            stockOfContacts={stockOfContacts}
+            collectionId={collectionId}
+            subCollectionId={subCollectionId}
+            setStockOfContacts={setStockOfContacts}
+            contactManageType={contactManageType}
+          />
+          <br />
+          <Inventory
+            stockOfContacts={stockOfContacts}
+            onClickCount={onClickCount}
+          />
+          <br />
+          <Button name="使い方ガイド" onClick={onClickToGuide} />
+          <Button name="設定" onClick={onClickToSettings} />
+          <Button name="Sign Out" onClick={onClickSignOut} />
+        </>
+      )}
     </SContainer>
   );
 });
