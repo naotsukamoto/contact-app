@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { memo } from "react";
-import styled from "styled-components";
 import { differenceInCalendarDays, format, parse } from "date-fns";
 import ja from "date-fns/locale/ja";
 import { doc, Timestamp, updateDoc } from "firebase/firestore";
@@ -10,29 +9,14 @@ import { StockOfContacts } from "../../types/StockOfContactsDocument";
 import { InputDate } from "../atoms/InputDate";
 import { db } from "../../firebase";
 import { QuestionTooltip } from "../atoms/QuestionTooltip";
-import { SBox, SRow, SSplitBox } from "../styles/Elements";
-
-const SInventoryDeadline = styled.p`
-  color: gray;
-  font-size: 14px;
-  margin-right: 4px;
-
-  @media (max-width: 768px) {
-    font-size: 10px;
-  }
-`;
-
-const SFlexRight = styled.div`
-  display: flex;
-  justify-content: right;
-  align-items: center;
-`;
-
-const SFlexCenter = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
+import {
+  SBox,
+  SFlexCenter,
+  SFlexRight,
+  SInventoryDeadline,
+  SRow,
+  SSplitBox,
+} from "../styles/Elements";
 
 type Props = {
   stockOfContacts: Array<StockOfContacts>;

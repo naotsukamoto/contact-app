@@ -27,3 +27,25 @@ export const SRow = styled.div`
     margin: 4px;
   }
 `;
+
+export const SFlexRight = styled.div`
+  display: flex;
+  justify-content: right;
+  align-items: center;
+`;
+
+export const SFlexCenter = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const SInventoryDeadline = styled.p`
+  color: gray;
+  font-size: 14px;
+  margin-right: 4px;
+
+  @media (max-width: 768px) {
+    font-size: 10px;
+  }
+`;
