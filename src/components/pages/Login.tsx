@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   signInWithPopup,
   // signInWithRedirect,
@@ -23,6 +23,17 @@ const SContainer = styled.div`
 const SText = styled.p`
   font-size: 12px;
   color: #70757a;
+`;
+
+const SLegalLinks = styled.p`
+  font-size: 11px;
+  color: #70757a;
+  margin-top: 16px;
+
+  a {
+    color: #70757a;
+    text-decoration: underline;
+  }
 `;
 
 export const Login: React.FC = memo(() => {
@@ -112,6 +123,11 @@ export const Login: React.FC = memo(() => {
             <br />
             アプリをリフレッシュしてからアクセスください
           </SText>
+          <SLegalLinks>
+            <Link to="/terms">利用規約</Link>
+            {" ・ "}
+            <Link to="/privacy">プライバシーポリシー</Link>
+          </SLegalLinks>
         </SContainer>
       )}
     </>
