@@ -76,6 +76,17 @@ exports.sendMail = functions
             transporter.sendMail(mailOptions, (err, res) => {
               console.log(err || res);
             });
+
+            // LINE通知送信
+            const lineUserId = doc.data().lineUserId;
+            if (lineUserId) {
+              const lineClient = new line.Client(lineConfig);
+              lineClient.pushMessage(lineUserId, {
+                type: "text",
+                text: "コンタクトの交換日が近づいているか、交換日が過ぎています。ConConをご確認ください。",
+              }).catch((err) => console.error("LINE push error:", err));
+            }
+
             // 送信件数をカウント
             mailCount += 1;
           }
