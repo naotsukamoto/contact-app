@@ -41,6 +41,10 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
     e: React.ChangeEvent<HTMLInputElement>,
     type: "Both" | "R" | "L"
   ) => {
+    // Safari 26以降の新しいネイティブカレンダーUIでは、
+    // onChange発火時にe.target.valueが空になることがあるためガードする
+    if (!e.target.value) return;
+
     console.log(
       `onChangeDateが実行されて、交換日が${e.target.value}に変更された`,
       type

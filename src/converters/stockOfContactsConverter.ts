@@ -24,11 +24,13 @@ export const stockOfContactsConverter: FirestoreDataConverter<StockOfContacts> =
       options: SnapshotOptions
     ): StockOfContacts {
       const data = snapshot.data(options);
+      // exchangeDayRight/Left はフィールド追加前に作成されたドキュメントでは
+      // undefined になるため、フォールバックとして exchangeDay を使用する
       return {
         id: data.id,
         exchangeDay: data.exchangeDay,
-        exchangeDayRight: data.exchangeDayRight,
-        exchangeDayLeft: data.exchangeDayLeft,
+        exchangeDayRight: data.exchangeDayRight ?? data.exchangeDay,
+        exchangeDayLeft: data.exchangeDayLeft ?? data.exchangeDay,
         left_eye: data.left_eye,
         right_eye: data.right_eye,
         updated_at: data.updated_at,
