@@ -54,23 +54,42 @@ exports.sendMail = functions
           s.data().exchangeDayLeft !== undefined &&
           s.data().exchangeDayRight !== undefined
         ) {
-          if (
-            differenceInCalendarDays(
-              s.data().exchangeDayLeft?.toDate(),
-              today
-            ) <= 1 ||
-            differenceInCalendarDays(
-              s.data().exchangeDayRight?.toDate(),
-              today
-            ) <= 1
-          ) {
+          const leftDiff = differenceInCalendarDays(
+            s.data().exchangeDayLeft?.toDate(),
+            today
+          );
+          const rightDiff = differenceInCalendarDays(
+            s.data().exchangeDayRight?.toDate(),
+            today
+          );
+
+          if (leftDiff <= 1 || rightDiff <= 1) {
+            // 日付フォーマット（例: 2024年3月15日）
+            const formatDate = (date: Date) => {
+              const y = date.getFullYear();
+              const m = date.getMonth() + 1;
+              const d = date.getDate();
+              return `${y}年${m}月${d}日`;
+            };
+            // 残り日数ラベル
+            const dayLabel = (diff: number) => {
+              if (diff < 0) return `（${Math.abs(diff)}日超過）`;
+              if (diff === 0) return "（本日）";
+              return `（${diff}日後）`;
+            };
+
             // メール情報
             const mailOptions = {
               from: "no-replay@conconcontacts.com",
               to: doc.data().email,
               //   to: "m0naaa0u@gmail.com",
               subject: "交換日について | ConCon",
-              text: "コンタクトレンズの交換日が近づいているか交換日が過ぎています。ConConをご確認ください。",
+              text: [
+                "コンタクトの交換日のお知らせ",
+                `・左目: ${formatDate(s.data().exchangeDayLeft.toDate())}${dayLabel(leftDiff)}`,
+                `・右目: ${formatDate(s.data().exchangeDayRight.toDate())}${dayLabel(rightDiff)}`,
+                "\nConConをご確認ください。",
+              ].join("\n"),
             };
             // メール送信
             transporter.sendMail(mailOptions, (err, res) => {
@@ -80,10 +99,17 @@ exports.sendMail = functions
             // LINE通知送信
             const lineUserId = doc.data().lineUserId;
             if (lineUserId) {
+              const lineMessageLines = [
+                "コンタクトの交換日のお知らせ",
+                `・左目: ${formatDate(s.data().exchangeDayLeft.toDate())}${dayLabel(leftDiff)}`,
+                `・右目: ${formatDate(s.data().exchangeDayRight.toDate())}${dayLabel(rightDiff)}`,
+                "\nConConでご確認ください。",
+              ];
+
               const lineClient = new line.Client(lineConfig);
               lineClient.pushMessage(lineUserId, {
                 type: "text",
-                text: "コンタクトの交換日が近づいているか、交換日が過ぎています。ConConをご確認ください。",
+                text: lineMessageLines.join("\n"),
               }).catch((err) => console.error("LINE push error:", err));
             }
 
