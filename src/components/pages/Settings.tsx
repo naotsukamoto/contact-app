@@ -10,6 +10,8 @@ import {
   updateDoc,
   where,
   doc,
+  setDoc,
+  Timestamp,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -98,6 +100,26 @@ export const Settings: React.FC = memo(() => {
     });
   }, []);
 
+  const onClickLineConnect = useCallback(async () => {
+    if (!userInfo?.uid) return;
+
+    // ランダムトークンを生成
+    const token = crypto.randomUUID();
+    // 10分間有効な有効期限を設定
+    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Firestoreにトークンを保存
+    await setDoc(doc(db, "line_link_tokens", token), {
+      uid: userInfo.uid,
+      expiry: Timestamp.fromDate(expiry),
+    });
+
+    // LINEのDeepLinkを開く（トークンをメッセージとして自動入力）
+    const lineAccountId = process.env.REACT_APP_LINE_OA_ID;
+    const lineUrl = `https://line.me/R/oaMessage/@${lineAccountId}/?${encodeURIComponent(token)}`;
+    window.open(lineUrl, "_blank");
+  }, [userInfo]);
+
   const onClickToHome = useCallback(() => {
     navigate("/home");
   }, []);
@@ -109,6 +131,12 @@ export const Settings: React.FC = memo(() => {
         settingContent="コンタクト交換日を右左それぞれ設定できるようにする"
         handleChange={handleChange}
       />
+      <br />
+      {userInfo?.lineUserId ? (
+        <p>LINE通知 連携済み ✓</p>
+      ) : (
+        <Button name="LINEと連携する" onClick={onClickLineConnect} />
+      )}
       <br />
       <Button name="戻る" onClick={onClickToHome} />
     </SContainer>

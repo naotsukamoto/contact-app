@@ -4,6 +4,7 @@ import { differenceInCalendarDays } from "date-fns";
 
 const functions = require("firebase-functions");
 const nodemailer = require("nodemailer");
+const line = require("@line/bot-sdk");
 
 // cloudfunctionsでfirestoreを利用する
 const admin = require("firebase-admin");
@@ -98,4 +99,91 @@ exports.sendMail = functions
       });
     });
     return null;
+  });
+
+// LINE連携用Webhookハンドラー
+const lineConfig = {
+  channelSecret: process.env.LINE_CHANNEL_SECRET,
+  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
+};
+
+exports.lineWebhook = functions
+  .region("asia-northeast1")
+  .https.onRequest(async (req, res) => {
+    // 署名検証
+    const signature = req.headers["x-line-signature"];
+    if (
+      !signature ||
+      !line.validateSignature(req.rawBody, lineConfig.channelSecret, signature)
+    ) {
+      res.status(403).send("Invalid signature");
+      return;
+    }
+
+    const events = req.body.events;
+    const client = new line.Client(lineConfig);
+
+    try {
+      await Promise.all(
+        events.map(async (event) => {
+          // テキストメッセージ以外は無視
+          if (event.type !== "message" || event.message.type !== "text") return;
+
+          const token = event.message.text.trim();
+          const lineUserId = event.source.userId;
+
+          // Firestoreでトークンを検索
+          const tokenDocRef = app
+            .firestore()
+            .collection("line_link_tokens")
+            .doc(token);
+          const tokenDoc = await tokenDocRef.get();
+
+          if (!tokenDoc.exists) {
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: "トークンが無効か期限切れです。アプリから再度「LINEと連携する」を押してください。",
+            });
+            return;
+          }
+
+          const tokenData = tokenDoc.data();
+
+          // 有効期限チェック
+          if (tokenData.expiry.toDate() < new Date()) {
+            await tokenDocRef.delete();
+            await client.replyMessage(event.replyToken, {
+              type: "text",
+              text: "トークンの有効期限が切れています。アプリから再度「LINEと連携する」を押してください。",
+            });
+            return;
+          }
+
+          // usersコレクションでUIDに一致するドキュメントを検索
+          const usersSnapshot = await app
+            .firestore()
+            .collection("users")
+            .where("uid", "==", tokenData.uid)
+            .get();
+
+          if (usersSnapshot.empty) return;
+
+          // lineUserIdを保存
+          await usersSnapshot.docs[0].ref.update({ lineUserId });
+
+          // 使用済みトークンを削除
+          await tokenDocRef.delete();
+
+          // 連携完了の返信
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: "LINE通知の連携が完了しました！\nコンタクトの交換日が近づいたらお知らせします。",
+          });
+        })
+      );
+    } catch (err) {
+      console.error(err);
+    }
+
+    res.status(200).send("OK");
   });

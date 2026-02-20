@@ -5,4 +5,5 @@ export type UserDocument = {
   email: string | null;
   uid: string;
   user_name: string | null;
+  lineUserId?: string;
 };

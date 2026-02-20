@@ -22,6 +22,7 @@ export const userConverter: FirestoreDataConverter<UserDocument> = {
       email: data.email,
       uid: data.uid,
       user_name: data.user_name,
+      lineUserId: data.lineUserId,
     };
   },
 };
