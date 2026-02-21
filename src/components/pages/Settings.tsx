@@ -114,10 +114,10 @@ export const Settings: React.FC = memo(() => {
       expiry: Timestamp.fromDate(expiry),
     });
 
-    // LINEのDeepLinkを開く（トークンをメッセージとして自動入力）
-    const lineAccountId = process.env.REACT_APP_LINE_OA_ID;
-    const lineUrl = `https://line.me/R/oaMessage/${lineAccountId}/?${encodeURIComponent(token)}`;
-    window.location.href = lineUrl;
+    // LIFF URLを開く（LINEアプリ内でアカウント連携を行う）
+    const liffId = process.env.REACT_APP_LIFF_ID;
+    const lineUrl = `https://liff.line.me/${liffId}?token=${encodeURIComponent(token)}`;
+    window.open(lineUrl, "_blank");
   }, [userInfo]);
 
   const onClickToHome = useCallback(() => {

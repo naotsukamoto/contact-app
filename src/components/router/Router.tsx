@@ -10,6 +10,7 @@ import { Settings } from "../pages/Settings";
 import { Guide } from "../pages/Guide";
 import { TermsOfService } from "../pages/TermsOfService";
 import { PrivacyPolicy } from "../pages/PrivacyPolicy";
+import { Liff } from "../pages/Liff";
 
 export const Router: React.FC = memo(() => {
   return (
@@ -20,6 +21,7 @@ export const Router: React.FC = memo(() => {
         <Route path="sign_up" element={<Signup />}></Route>
         <Route path="terms" element={<TermsOfService />}></Route>
         <Route path="privacy" element={<PrivacyPolicy />}></Route>
+        <Route path="liff" element={<Liff />}></Route>
         <Route
           path="home"
           element={<RouteAuthGuard component={<Home />} redirect="/" />}

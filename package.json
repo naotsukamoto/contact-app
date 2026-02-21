@@ -6,6 +6,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@grpc/grpc-js": "^1.8.12",
+    "@line/liff": "^2.27.3",
     "@mui/material": "^5.11.12",
     "@react-query-firebase/auth": "^1.0.0-dev.2",
     "@react-query-firebase/firestore": "^1.0.0-dev.7",

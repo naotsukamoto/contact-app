@@ -163,59 +163,14 @@ exports.lineWebhook = functions
     try {
       await Promise.all(
         events.map(async (event) => {
-          // テキストメッセージ以外は無視
-          if (event.type !== "message" || event.message.type !== "text") return;
-
-          const token = event.message.text.trim();
-          const lineUserId = event.source.userId;
-
-          // Firestoreでトークンを検索
-          const tokenDocRef = app
-            .firestore()
-            .collection("line_link_tokens")
-            .doc(token);
-          const tokenDoc = await tokenDocRef.get();
-
-          if (!tokenDoc.exists) {
-            await client.replyMessage(event.replyToken, {
+          // 友達追加時：挨拶メッセージを送信
+          if (event.type === "follow") {
+            await client.pushMessage(event.source.userId, {
               type: "text",
-              text: "トークンが無効か期限切れです。アプリから再度「LINEと連携する」を押してください。",
+              text: "Concon通知botを友達追加していただきありがとうございます！\nコンタクトの交換日が近づいたらLINEでお知らせします。",
             });
             return;
           }
-
-          const tokenData = tokenDoc.data();
-
-          // 有効期限チェック
-          if (tokenData.expiry.toDate() < new Date()) {
-            await tokenDocRef.delete();
-            await client.replyMessage(event.replyToken, {
-              type: "text",
-              text: "トークンの有効期限が切れています。アプリから再度「LINEと連携する」を押してください。",
-            });
-            return;
-          }
-
-          // usersコレクションでUIDに一致するドキュメントを検索
-          const usersSnapshot = await app
-            .firestore()
-            .collection("users")
-            .where("uid", "==", tokenData.uid)
-            .get();
-
-          if (usersSnapshot.empty) return;
-
-          // lineUserIdを保存
-          await usersSnapshot.docs[0].ref.update({ lineUserId });
-
-          // 使用済みトークンを削除
-          await tokenDocRef.delete();
-
-          // 連携完了の返信
-          await client.replyMessage(event.replyToken, {
-            type: "text",
-            text: "LINE通知の連携が完了しました！\nコンタクトの交換日が近づいたらお知らせします。",
-          });
         })
       );
     } catch (err) {
@@ -223,4 +178,55 @@ exports.lineWebhook = functions
     }
 
     res.status(200).send("OK");
+  });
+
+// LIFF経由でLINEアカウントとアプリアカウントを連携するエンドポイント
+exports.linkLineAccount = functions
+  .region("asia-northeast1")
+  .https.onRequest(async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "https://contacts-app-bb4dd.web.app");
+    res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    const { token, lineUserId } = req.body;
+
+    if (!token || !lineUserId) {
+      res.status(400).json({ error: "Missing params" });
+      return;
+    }
+
+    const tokenDocRef = app.firestore().collection("line_link_tokens").doc(token);
+    const tokenDoc = await tokenDocRef.get();
+
+    if (!tokenDoc.exists) {
+      res.status(400).json({ error: "トークンが無効か期限切れです。アプリから再度「LINEと連携する」を押してください。" });
+      return;
+    }
+
+    if (tokenDoc.data().expiry.toDate() < new Date()) {
+      await tokenDocRef.delete();
+      res.status(400).json({ error: "トークンの有効期限が切れています。アプリから再度「LINEと連携する」を押してください。" });
+      return;
+    }
+
+    const usersSnapshot = await app
+      .firestore()
+      .collection("users")
+      .where("uid", "==", tokenDoc.data().uid)
+      .get();
+
+    if (usersSnapshot.empty) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    await usersSnapshot.docs[0].ref.update({ lineUserId });
+    await tokenDocRef.delete();
+
+    res.status(200).json({ success: true });
   });
