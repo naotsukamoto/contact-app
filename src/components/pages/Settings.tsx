@@ -117,7 +117,7 @@ export const Settings: React.FC = memo(() => {
     // LINEのDeepLinkを開く（トークンをメッセージとして自動入力）
     const lineAccountId = process.env.REACT_APP_LINE_OA_ID;
     const lineUrl = `https://line.me/R/oaMessage/${lineAccountId}/?${encodeURIComponent(token)}`;
-    window.open(lineUrl, "_blank");
+    window.location.href = lineUrl;
   }, [userInfo]);
 
   const onClickToHome = useCallback(() => {
