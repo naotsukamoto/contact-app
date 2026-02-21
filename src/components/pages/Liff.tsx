@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
 import liff from "@line/liff";
 import styled from "styled-components";
+import { Button } from "../atoms/Button";
 
 const SContainer = styled.div`
   display: flex;
@@ -75,10 +76,19 @@ export const Liff: React.FC = memo(() => {
   }
 
   if (status === "success") {
+    const oaId = process.env.REACT_APP_LINE_OA_ID ?? "";
+    const addFriendUrl = `https://line.me/R/ti/p/${oaId}`;
     return (
       <SContainer>
         <p>✓ LINE通知の連携が完了しました！</p>
-        <p>コンタクトの交換日が近づいたらお知らせします。</p>
+        <p>続けて、下のボタンからConcon通知botを友達追加してください。</p>
+        <Button
+          name="Concon通知botを友達追加する"
+          onClick={() =>
+            liff.openWindow({ url: addFriendUrl, external: false })
+          }
+        />
+        <p>友達追加後、挨拶メッセージが届きます。</p>
       </SContainer>
     );
   }

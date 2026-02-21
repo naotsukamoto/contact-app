@@ -3,9 +3,8 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  signInWithPopup,
-  // signInWithRedirect,
-  // getRedirectResult,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   AuthProvider,
 } from "@firebase/auth";
@@ -49,14 +48,28 @@ export const Login: React.FC = memo(() => {
       console.log("Loginがレンダリングされた");
       // loading開始
       setIsLoading(true);
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          setTimeout(() => navigate("/home"), 500);
-          toastFunc("success", "ログインしました");
-        }
-        setIsLoading(false);
-      });
-      unsubscribe();
+      // リダイレクト認証の結果を取得
+      getRedirectResult(auth)
+        .then((result) => {
+          if (result) {
+            setTimeout(() => navigate("/home"), 500);
+            toastFunc("success", "ログインしました");
+            return;
+          }
+          // リダイレクト結果なし → 現在のログイン状態を確認
+          const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+              setTimeout(() => navigate("/home"), 500);
+            }
+            setIsLoading(false);
+          });
+          unsubscribe();
+        })
+        .catch((error) => {
+          console.error(error);
+          toastFunc("error", "ログインできませんでした");
+          setIsLoading(false);
+        });
     }
 
     return () => {
@@ -66,36 +79,16 @@ export const Login: React.FC = memo(() => {
 
   // ログインボタンがクリックされたときの処理
   const onClickLogin = useCallback(
-    async (provider: AuthProvider) => {
+    (provider: AuthProvider) => {
       console.log("onClickLoginがレンダリングされた");
       // loading開始
       setIsLoading(true);
-
-      // firebaseを使ったログイン認証のロジック
-      // ポップアップを出す
-      await signInWithPopup(auth, provider)
-        // await signInWithRedirect(auth, provider);
-        // getRedirectResult(auth, provider)
-        .then((result) => {
-          console.log(result);
-          // 画面遷移させる
-          setTimeout(() => navigate("/home"), 500);
-          toastFunc("success", "ログインしました");
-        })
-        .catch((error) => {
-          if (error.code === "auth/popup-closed-by-user") {
-            toastFunc(
-              "error",
-              "ポップアップが閉じられたため、ログインできませんでした"
-            );
-          } else {
-            toastFunc("error", "ログインできませんでした");
-          }
-        })
-        .finally(() => {
-          // ローディング終了
-          setIsLoading(false);
-        });
+      // リダイレクトでログイン（Safariのポップアップブロック対策）
+      signInWithRedirect(auth, provider).catch((error) => {
+        console.error(error);
+        toastFunc("error", "ログインできませんでした");
+        setIsLoading(false);
+      });
     },
     [navigate]
   );

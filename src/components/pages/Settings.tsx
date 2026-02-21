@@ -114,10 +114,10 @@ export const Settings: React.FC = memo(() => {
       expiry: Timestamp.fromDate(expiry),
     });
 
-    // LIFF URLを開く（LINEアプリ内でアカウント連携を行う）
+    // LIFF URLを開く（Safari のポップアップブロック対策のため location.href で遷移）
     const liffId = process.env.REACT_APP_LIFF_ID;
     const lineUrl = `https://liff.line.me/${liffId}?token=${encodeURIComponent(token)}`;
-    window.open(lineUrl, "_blank");
+    window.location.href = lineUrl;
   }, [userInfo]);
 
   const onClickToHome = useCallback(() => {
