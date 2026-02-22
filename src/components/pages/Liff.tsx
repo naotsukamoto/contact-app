@@ -58,7 +58,7 @@ export const Liff: React.FC = memo(() => {
           setStatus("error");
         }
       } catch (err) {
-        console.error(err);
+        console.error("[LIFF] エラー:", err);
         setStatus("error");
         setErrorMessage("予期しないエラーが発生しました");
       }
@@ -76,19 +76,19 @@ export const Liff: React.FC = memo(() => {
   }
 
   if (status === "success") {
-    const oaId = process.env.REACT_APP_LINE_OA_ID ?? "";
-    const addFriendUrl = `https://line.me/R/ti/p/${oaId}`;
+    const handleBack = () => {
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        window.location.href = `${window.location.origin}/settings`;
+      }
+    };
+
     return (
       <SContainer>
         <p>✓ LINE通知の連携が完了しました！</p>
-        <p>続けて、下のボタンからConcon通知botを友達追加してください。</p>
-        <Button
-          name="Concon通知botを友達追加する"
-          onClick={() =>
-            liff.openWindow({ url: addFriendUrl, external: false })
-          }
-        />
-        <p>友達追加後、挨拶メッセージが届きます。</p>
+        <p>アプリに戻って設定画面を確認してください。</p>
+        <Button name="アプリに戻る" onClick={handleBack} />
       </SContainer>
     );
   }

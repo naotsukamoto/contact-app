@@ -1,6 +1,3 @@
-import { atom } from "recoil";
+import { atom } from "jotai";
 
-export const contactManageTypeAtom = atom({
-  key: "contactManageType",
-  default: 0,
-});
+export const contactManageTypeAtom = atom(0);

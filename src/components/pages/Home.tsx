@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useAtom } from "jotai";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
@@ -41,7 +41,7 @@ export const Home: React.FC = memo(() => {
   const navigate = useNavigate();
 
   // 初期読み込みのローディングsteteを作成
-  const [loading, setLoading] = useRecoilState(loadingAtom);
+  const [loading, setLoading] = useAtom(loadingAtom);
 
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
@@ -56,7 +56,7 @@ export const Home: React.FC = memo(() => {
   const [subCollectionId, setSubCollectionId] = useState<string>("");
 
   // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType, setContactManageType] = useRecoilState(
+  const [contactManageType, setContactManageType] = useAtom(
     contactManageTypeAtom
   );
 

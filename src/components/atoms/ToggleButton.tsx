@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
+import { useAtom } from "jotai";
 
 import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 
@@ -65,7 +65,7 @@ export const ToggleButton: React.FC<Props> = memo((props) => {
   const { handleChange } = props;
 
   // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType] = useRecoilState(contactManageTypeAtom);
+  const [contactManageType] = useAtom(contactManageTypeAtom);
 
   return (
     <>

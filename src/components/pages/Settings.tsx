@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { memo, useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useAtom, useSetAtom } from "jotai";
 import {
   collection,
   getDocs,
@@ -13,6 +13,7 @@ import {
   setDoc,
   Timestamp,
 } from "firebase/firestore";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -22,49 +23,40 @@ import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom"
 import { userInfoAtom } from "../../grobalStates/userInfoAtom";
 import { userConverter } from "../../converters/userConverter";
 import { Button } from "../atoms/Button";
+import { toastFunc } from "../../utils/toastFunc";
 
 const SContainer = styled.div`
   text-align: center;
 `;
 
 export const Settings: React.FC = memo(() => {
-  // 未ログイン時のリダイレクトnavigate
   const navigate = useNavigate();
 
-  // コンタクトレンズの管理方法を格納するstateを作成
-  const setContactManageType = useSetRecoilState(contactManageTypeAtom);
+  const setContactManageType = useSetAtom(contactManageTypeAtom);
+  const [userInfo, setUserInfo] = useAtom(userInfoAtom);
 
-  // ユーザー情報を格納するstateを作成
-  const [userInfo, setUserInfo] = useRecoilState(userInfoAtom);
+  const [isLinking, setIsLinking] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
 
-  // settingコレクションを参照
   const settingsCollectionRef = collection(db, "settings");
-
-  // usersコレクションを参照
   const usersCollectionRef = collection(db, "users").withConverter(
     userConverter
   );
 
-  // settingsアクセス後のデータ取得
   let access: boolean = false;
 
-  // ページアクセス時はfirebaseから情報を取得する
   useEffect(() => {
     if (!access) {
-      console.log("Settingsがレンダリングされた");
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          // コンタクトレンズの管理方法を取得
           await getDocs(
             query(settingsCollectionRef, where("uid", "==", user.uid))
           ).then((snapShot) => {
             snapShot.forEach((doc) => {
-              // stateを更新する
               setContactManageType(doc.data().contactManageType);
             });
           });
 
-          // userInfoを更新
           await getDocs(
             query(usersCollectionRef, where("uid", "==", user.uid))
           ).then((snapShot) => {
@@ -77,18 +69,14 @@ export const Settings: React.FC = memo(() => {
         }
       });
     }
-    // accessをtrueにする処理は、コールバック関数で書くことによって関数を処理してから次の処理を行うようになる
     return () => {
       access = true;
     };
   }, []);
 
-  // toggleのONのOFFによって実行される関数
   const handleChange = useCallback(() => {
-    // stateを更新
     setContactManageType((prevType) => (prevType === 0 ? 1 : 0));
 
-    // firestoreを更新する
     getDocs(
       query(settingsCollectionRef, where("uid", "==", userInfo.uid))
     ).then((snapShot) => {
@@ -102,23 +90,46 @@ export const Settings: React.FC = memo(() => {
 
   const onClickLineConnect = useCallback(async () => {
     if (!userInfo?.uid) return;
+    setIsLinking(true);
+    try {
+      const token = crypto.randomUUID();
+      const expiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    // ランダムトークンを生成
-    const token = crypto.randomUUID();
-    // 10分間有効な有効期限を設定
-    const expiry = new Date(Date.now() + 10 * 60 * 1000);
+      await setDoc(doc(db, "line_link_tokens", token), {
+        uid: userInfo.uid,
+        expiry: Timestamp.fromDate(expiry),
+        createdAt: Timestamp.now(),
+      });
 
-    // Firestoreにトークンを保存
-    await setDoc(doc(db, "line_link_tokens", token), {
-      uid: userInfo.uid,
-      expiry: Timestamp.fromDate(expiry),
-    });
-
-    // LIFF URLを開く（Safari のポップアップブロック対策のため location.href で遷移）
-    const liffId = process.env.REACT_APP_LIFF_ID;
-    const lineUrl = `https://liff.line.me/${liffId}?token=${encodeURIComponent(token)}`;
-    window.location.href = lineUrl;
+      const liffId = process.env.REACT_APP_LIFF_ID;
+      window.location.href = `https://liff.line.me/${liffId}?token=${encodeURIComponent(token)}`;
+    } catch (err) {
+      console.error("[LINE連携] エラー:", err);
+      toastFunc("error", "連携処理中にエラーが発生しました");
+      setIsLinking(false);
+    }
   }, [userInfo]);
+
+  const onClickLineUnlink = useCallback(async () => {
+    if (!window.confirm("LINE通知連携を解除しますか？")) return;
+    setIsUnlinking(true);
+    try {
+      const functions = getFunctions(undefined, "asia-northeast1");
+      const unlinkFn = httpsCallable(functions, "unlinkLineAccount");
+      await unlinkFn();
+      setUserInfo((prev) => {
+        const next = { ...prev };
+        delete next.lineUserId;
+        return next;
+      });
+      toastFunc("success", "LINE連携を解除しました");
+    } catch (err) {
+      console.error("[LINE連携解除] エラー:", err);
+      toastFunc("error", "解除中にエラーが発生しました");
+    } finally {
+      setIsUnlinking(false);
+    }
+  }, [setUserInfo]);
 
   const onClickToHome = useCallback(() => {
     navigate("/home");
@@ -133,9 +144,18 @@ export const Settings: React.FC = memo(() => {
       />
       <br />
       {userInfo?.lineUserId ? (
-        <p>LINE通知 連携済み ✓</p>
+        <>
+          <p>LINE通知 連携済み ✓</p>
+          <Button
+            name={isUnlinking ? "解除中..." : "LINE連携を解除する"}
+            onClick={onClickLineUnlink}
+          />
+        </>
       ) : (
-        <Button name="LINEと連携する" onClick={onClickLineConnect} />
+        <Button
+          name={isLinking ? "連携中..." : "LINEと連携する"}
+          onClick={onClickLineConnect}
+        />
       )}
       <br />
       <Button name="戻る" onClick={onClickToHome} />

@@ -3,7 +3,6 @@ import { ToastContainer } from "react-toastify";
 import { BrowserRouter } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.min.css";
 import styled from "styled-components";
-import { RecoilRoot } from "recoil";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { Router } from "./components/router/Router";
@@ -21,14 +20,12 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <SMain>
-      <RecoilRoot>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <Router />
-          </BrowserRouter>
-          <ToastContainer />
-        </QueryClientProvider>
-      </RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Router />
+        </BrowserRouter>
+        <ToastContainer />
+      </QueryClientProvider>
     </SMain>
   );
 }
