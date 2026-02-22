@@ -101,8 +101,10 @@ export const Settings: React.FC = memo(() => {
         createdAt: Timestamp.now(),
       });
 
-      const liffId = process.env.REACT_APP_LIFF_ID;
-      window.location.href = `https://liff.line.me/${liffId}?token=${encodeURIComponent(token)}`;
+      // const liffId = process.env.REACT_APP_LIFF_ID;
+      window.location.href = `https://liff.line.me/2009193250-mlxpkXRx?token=${encodeURIComponent(
+        token
+      )}`;
     } catch (err) {
       console.error("[LINE連携] エラー:", err);
       toastFunc("error", "連携処理中にエラーが発生しました");

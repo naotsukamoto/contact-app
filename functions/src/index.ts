@@ -20,11 +20,18 @@ const transporter = nodemailer.createTransport({
 } as Parameters<typeof nodemailer.createTransport>[0]);
 
 // ─── LINE 設定 ────────────────────────────────────────────────
-const lineConfig: line.ClientConfig = {
-  channelSecret: process.env.LINE_CHANNEL_SECRET ?? "",
-  channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN ?? "",
+// Client はモジュール読み込み時ではなく関数実行時に生成する
+// （環境変数が未設定の場合にクラッシュするのを防ぐため）
+const getLineClient = (): line.Client => {
+  const config: line.ClientConfig = {
+    channelSecret: process.env.LINE_CHANNEL_SECRET ?? "",
+    channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN ?? "",
+  };
+  return new line.Client(config);
 };
-const lineClient = new line.Client(lineConfig);
+
+const getLineChannelSecret = (): string =>
+  process.env.LINE_CHANNEL_SECRET ?? "";
 
 // ─── 共通ヘルパー ─────────────────────────────────────────────
 const formatDate = (date: Date): string => {
@@ -127,12 +134,12 @@ exports.sendNotifications = functions
             // LINE通知
             if (userData.lineUserId) {
               tasks.push(
-                lineClient
+                getLineClient()
                   .pushMessage(userData.lineUserId, {
                     type: "text",
                     text: messageText,
                   })
-                  .catch((err) => console.error("LINE push エラー:", err))
+                  .catch((err: unknown) => console.error("LINE push エラー:", err))
               );
             }
 
@@ -158,7 +165,7 @@ exports.lineWebhook = functions
       !signature ||
       !line.validateSignature(
         req.rawBody,
-        lineConfig.channelSecret!,
+        getLineChannelSecret(),
         signature
       )
     ) {
@@ -172,7 +179,7 @@ exports.lineWebhook = functions
       events.map(async (event) => {
         if (event.type === "follow") {
           // 友達追加時：ウェルカムメッセージ
-          await lineClient.replyMessage(event.replyToken, {
+          await getLineClient().replyMessage(event.replyToken, {
             type: "text",
             text: "Concon通知botを友達追加していただきありがとうございます！\nコンタクトの交換日が近づいたらLINEでお知らせします。",
           });
