@@ -101,10 +101,11 @@ export const Settings: React.FC = memo(() => {
         createdAt: Timestamp.now(),
       });
 
-      // const liffId = process.env.REACT_APP_LIFF_ID;
-      window.location.href = `https://liff.line.me/2009193250-mlxpkXRx?token=${encodeURIComponent(
+      const liffId = process.env.REACT_APP_LIFF_ID;
+      window.location.href = `https://liff.line.me/${liffId}?token=${encodeURIComponent(
         token
       )}`;
+      console.log(liffId);
     } catch (err) {
       console.error("[LINE連携] エラー:", err);
       toastFunc("error", "連携処理中にエラーが発生しました");
@@ -155,7 +156,7 @@ export const Settings: React.FC = memo(() => {
         </>
       ) : (
         <Button
-          name={isLinking ? "連携中..." : "LINEと連携する"}
+          name={isLinking ? "連携中..." : "LINEで通知を受け取る"}
           onClick={onClickLineConnect}
         />
       )}

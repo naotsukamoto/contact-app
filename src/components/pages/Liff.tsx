@@ -21,17 +21,18 @@ export const Liff: React.FC = memo(() => {
 
   useEffect(() => {
     const run = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-
-      if (!token) {
-        setStatus("invalid_token");
-        return;
-      }
-
       try {
         const liffId = process.env.REACT_APP_LIFF_ID!;
         await liff.init({ liffId });
+
+        // liff.init() が liff.state を処理してURLを復元するため、init() の後に読み取る
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get("token");
+
+        if (!token) {
+          setStatus("invalid_token");
+          return;
+        }
 
         if (!liff.isLoggedIn()) {
           liff.login();
