@@ -3,8 +3,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   onAuthStateChanged,
   AuthProvider,
 } from "@firebase/auth";
@@ -42,53 +41,31 @@ export const Login: React.FC = memo(() => {
   const [isLoading, setIsLoading] = useState(false);
 
   // ログイン状態であれば、/homeにリダイレクトする
-  let access: boolean = false;
   useEffect(() => {
-    if (!access) {
-      console.log("Loginがレンダリングされた");
-      // loading開始
-      setIsLoading(true);
-      // リダイレクト認証の結果を取得
-      getRedirectResult(auth)
-        .then((result) => {
-          if (result) {
-            setTimeout(() => navigate("/home"), 500);
-            toastFunc("success", "ログインしました");
-            return;
-          }
-          // リダイレクト結果なし → 現在のログイン状態を確認
-          const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-              setTimeout(() => navigate("/home"), 500);
-            }
-            setIsLoading(false);
-          });
-          unsubscribe();
-        })
-        .catch((error) => {
-          console.error(error);
-          toastFunc("error", "ログインできませんでした");
-          setIsLoading(false);
-        });
-    }
-
-    return () => {
-      access = true;
-    };
+    setIsLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate("/home");
+      } else {
+        setIsLoading(false);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   // ログインボタンがクリックされたときの処理
   const onClickLogin = useCallback(
-    (provider: AuthProvider) => {
-      console.log("onClickLoginがレンダリングされた");
-      // loading開始
+    async (provider: AuthProvider) => {
       setIsLoading(true);
-      // リダイレクトでログイン（Safariのポップアップブロック対策）
-      signInWithRedirect(auth, provider).catch((error) => {
+      try {
+        await signInWithPopup(auth, provider);
+        toastFunc("success", "ログインしました");
+        navigate("/home");
+      } catch (error) {
         console.error(error);
         toastFunc("error", "ログインできませんでした");
         setIsLoading(false);
-      });
+      }
     },
     [navigate]
   );

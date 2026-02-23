@@ -1,29 +1,25 @@
-import { onAuthStateChanged } from "firebase/auth";
-import React, { memo, ReactNode } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import React, { memo, ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
 import { auth } from "../../firebase";
-import { toastFunc } from "../../utils/toastFunc";
 
 type Props = {
   component: ReactNode;
   redirect: string;
 };
 
-export const RouteAuthGuard: React.FC<Props> = memo((props) => {
-  console.log("RouteAuthGuardがレンダリングされた");
-  const { component, redirect } = props;
+export const RouteAuthGuard: React.FC<Props> = memo(({ component, redirect }) => {
+  const [user, setUser] = useState<User | null | undefined>(undefined);
 
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    console.log("RouteAuthGuardでonAuthStateChangedがレンダリングされた");
-    if (!user) {
-      toastFunc("error", "ログインできませんでした");
-      return <Navigate to={redirect} />;
-    } else {
-      return <>{component}</>;
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  unsubscribe();
+  if (user === undefined) return null;
+  if (!user) return <Navigate to={redirect} />;
   return <>{component}</>;
 });

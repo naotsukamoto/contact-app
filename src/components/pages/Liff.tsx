@@ -61,7 +61,8 @@ export const Liff: React.FC = memo(() => {
       } catch (err) {
         console.error("[LIFF] エラー:", err);
         setStatus("error");
-        setErrorMessage("予期しないエラーが発生しました");
+        const msg = err instanceof Error ? err.message : String(err);
+        setErrorMessage(`予期しないエラーが発生しました: ${msg}`);
       }
     };
 
