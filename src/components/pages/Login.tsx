@@ -3,8 +3,7 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   onAuthStateChanged,
   AuthProvider,
 } from "@firebase/auth";
@@ -44,38 +43,30 @@ export const Login: React.FC = memo(() => {
   // ログイン状態であれば、/homeにリダイレクトする
   useEffect(() => {
     setIsLoading(true);
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result) {
-          toastFunc("success", "ログインしました");
-          navigate("/home");
-          return;
-        }
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (user) {
-            navigate("/home");
-          } else {
-            setIsLoading(false);
-          }
-          unsubscribe();
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        toastFunc("error", "ログインできませんでした");
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate("/home");
+      } else {
         setIsLoading(false);
-      });
+      }
+      unsubscribe();
+    });
   }, []);
 
   // ログインボタンがクリックされたときの処理
   const onClickLogin = useCallback(
     (provider: AuthProvider) => {
       setIsLoading(true);
-      signInWithRedirect(auth, provider).catch((error) => {
-        console.error(error);
-        toastFunc("error", "ログインできませんでした");
-        setIsLoading(false);
-      });
+      signInWithPopup(auth, provider)
+        .then(() => {
+          toastFunc("success", "ログインしました");
+          navigate("/home");
+        })
+        .catch((error) => {
+          console.error(error);
+          toastFunc("error", "ログインできませんでした");
+          setIsLoading(false);
+        });
     },
     [navigate]
   );

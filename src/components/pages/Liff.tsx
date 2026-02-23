@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import liff from "@line/liff";
 import styled from "styled-components";
 import { Button } from "../atoms/Button";
@@ -18,6 +18,7 @@ type Status = "loading" | "success" | "error" | "invalid_token";
 export const Liff: React.FC = memo(() => {
   const [status, setStatus] = useState<Status>("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const redirectOriginRef = useRef<string>(window.location.origin);
 
   useEffect(() => {
     const run = async () => {
@@ -28,6 +29,8 @@ export const Liff: React.FC = memo(() => {
         // liff.init() が liff.state を処理してURLを復元するため、init() の後に読み取る
         const params = new URLSearchParams(window.location.search);
         const token = params.get("token");
+        const redirectOrigin = params.get("redirect") || window.location.origin;
+        redirectOriginRef.current = redirectOrigin;
 
         if (!token) {
           setStatus("invalid_token");
@@ -69,6 +72,20 @@ export const Liff: React.FC = memo(() => {
     run();
   }, []);
 
+  // 連携成功後に自動でSettingsへリダイレクト
+  useEffect(() => {
+    if (status !== "success") return;
+    if (liff.isInClient()) {
+      liff.closeWindow();
+    } else {
+      window.location.href = `${redirectOriginRef.current}/settings`;
+    }
+  }, [status]);
+
+  const handleGoHome = () => {
+    window.location.href = `${window.location.origin}/home`;
+  };
+
   if (status === "loading") {
     return (
       <SContainer>
@@ -78,19 +95,10 @@ export const Liff: React.FC = memo(() => {
   }
 
   if (status === "success") {
-    const handleBack = () => {
-      if (liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        window.location.href = `${window.location.origin}/settings`;
-      }
-    };
-
     return (
       <SContainer>
         <p>✓ LINE通知の連携が完了しました！</p>
-        <p>アプリに戻って設定画面を確認してください。</p>
-        <Button name="アプリに戻る" onClick={handleBack} />
+        <p>設定画面に移動します...</p>
       </SContainer>
     );
   }
@@ -98,8 +106,9 @@ export const Liff: React.FC = memo(() => {
   if (status === "invalid_token") {
     return (
       <SContainer>
-        <p>リンクが無効です。</p>
+        <p>リンクが無効になっています。</p>
         <p>アプリの設定画面から「LINEと連携する」を押し直してください。</p>
+        <Button name="HOMEに戻る" onClick={handleGoHome} />
       </SContainer>
     );
   }
@@ -109,6 +118,7 @@ export const Liff: React.FC = memo(() => {
       <p>連携に失敗しました。</p>
       <p>{errorMessage}</p>
       <p>アプリの設定画面から「LINEと連携する」を押し直してください。</p>
+      <Button name="HOMEに戻る" onClick={handleGoHome} />
     </SContainer>
   );
 });
