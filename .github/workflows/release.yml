@@ -30,3 +30,12 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_CONTACTS_APP_BB4DD }}"
           channelId: live
           projectId: contacts-app-bb4dd
+      - name: install functions dependencies
+        run: npm ci
+        working-directory: ./functions
+      - name: deploy to firebase functions
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CONTACTS_APP_BB4DD }}' > /tmp/sa.json
+          npx firebase-tools deploy --only functions --project contacts-app-bb4dd
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa.json

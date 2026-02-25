@@ -275,6 +275,16 @@ exports.linkLineAccount = functions
         tx.delete(tokenDocRef);
       });
 
+      // 連携完了メッセージをLINEに送信（失敗しても連携成功扱いを維持）
+      await getLineClient()
+        .pushMessage(lineUserId, {
+          type: "text",
+          text: "✅ ConConとのLINE連携が完了しました！\nコンタクトの交換日が近づいたらLINEでお知らせします。",
+        })
+        .catch((err: unknown) =>
+          console.error("LINE連携完了メッセージ送信エラー:", err)
+        );
+
       res.status(200).json({ success: true });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "UNKNOWN";

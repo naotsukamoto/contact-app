@@ -13,7 +13,7 @@ const SContainer = styled.div`
   padding: 24px;
 `;
 
-type Status = "loading" | "success" | "error" | "invalid_token";
+type Status = "loading" | "success" | "error" | "invalid_token" | "timeout";
 
 export const Liff: React.FC = memo(() => {
   const [status, setStatus] = useState<Status>("loading");
@@ -48,11 +48,30 @@ export const Liff: React.FC = memo(() => {
         const functionsUrl =
           "https://asia-northeast1-contacts-app-bb4dd.cloudfunctions.net/linkLineAccount";
 
-        const response = await fetch(functionsUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, lineUserId }),
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+        let response: Response;
+        try {
+          response = await fetch(functionsUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, lineUserId }),
+            signal: controller.signal,
+          });
+          clearTimeout(timeoutId);
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
+            setStatus("timeout");
+          } else {
+            setStatus("error");
+            setErrorMessage(
+              "通信中にエラーが発生しました。再度お試しください。"
+            );
+          }
+          return;
+        }
 
         if (response.ok) {
           setStatus("success");
@@ -64,8 +83,7 @@ export const Liff: React.FC = memo(() => {
       } catch (err) {
         console.error("[LIFF] エラー:", err);
         setStatus("error");
-        const msg = err instanceof Error ? err.message : String(err);
-        setErrorMessage(`予期しないエラーが発生しました: ${msg}`);
+        setErrorMessage("予期しないエラーが発生しました。再度お試しください。");
       }
     };
 
@@ -84,6 +102,10 @@ export const Liff: React.FC = memo(() => {
 
   const handleGoHome = () => {
     window.location.href = `${window.location.origin}/home`;
+  };
+
+  const handleGoSettings = () => {
+    window.location.href = `${redirectOriginRef.current}/settings`;
   };
 
   if (status === "loading") {
@@ -107,8 +129,20 @@ export const Liff: React.FC = memo(() => {
     return (
       <SContainer>
         <p>リンクが無効になっています。</p>
-        <p>アプリの設定画面から「LINEと連携する」を押し直してください。</p>
+        <p>アプリの設定画面から「LINEで通知を受け取る」を押し直してください。</p>
         <Button name="HOMEに戻る" onClick={handleGoHome} />
+      </SContainer>
+    );
+  }
+
+  if (status === "timeout") {
+    return (
+      <SContainer>
+        <p>通信がタイムアウトしました。</p>
+        <p>
+          アプリの設定画面から「LINEで通知を受け取る」を再度タップしてください。
+        </p>
+        <Button name="設定画面に戻る" onClick={handleGoSettings} />
       </SContainer>
     );
   }
@@ -117,8 +151,7 @@ export const Liff: React.FC = memo(() => {
     <SContainer>
       <p>連携に失敗しました。</p>
       <p>{errorMessage}</p>
-      <p>アプリの設定画面から「LINEと連携する」を押し直してください。</p>
-      <Button name="HOMEに戻る" onClick={handleGoHome} />
+      <Button name="設定画面に戻る" onClick={handleGoSettings} />
     </SContainer>
   );
 });
