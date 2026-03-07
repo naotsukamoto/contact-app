@@ -11,7 +11,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -22,7 +22,7 @@
     "nodemailer": "^6.9.1"
   },
   "devDependencies": {
-    "@types/node": "^20.19.37",
+    "@types/node": "^22.19.15",
     "@types/nodemailer": "^7.0.11",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
