@@ -30,4 +30,22 @@ describe("在庫期限日の算出のテスト", () => {
       Timestamp.fromDate(dtTobe)
     );
   });
+
+  test("両目の残数が同じ場合に、正しい日付を返す", () => {
+    const dt: Date = new Date(2023, 1, 1, 0, 0, 0);
+    const dtTobe: Date = new Date(2023, 1, 29, 0, 0, 0); // (3-1)*14 = 28日後
+
+    expect(calcInventoryDeadline(3, 3, Timestamp.fromDate(dt))).toEqual(
+      Timestamp.fromDate(dtTobe)
+    );
+  });
+
+  test("在庫数が多い場合に、正しい日付を返す", () => {
+    const dt: Date = new Date(2023, 1, 1, 0, 0, 0);
+    const dtTobe: Date = new Date(2023, 2, 29, 0, 0, 0); // (5-1)*14 = 56日後（左が5で少ない方）
+
+    expect(calcInventoryDeadline(10, 5, Timestamp.fromDate(dt))).toEqual(
+      Timestamp.fromDate(dtTobe)
+    );
+  });
 });
