@@ -13,7 +13,7 @@ import {
   updateDoc,
   Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useAtom } from "jotai";
 
@@ -71,115 +71,126 @@ export const Home: React.FC = memo(() => {
     contactManageTypeAtom
   );
 
-  // ログイン後のデータ取得
-  let access: boolean = false;
-
   useEffect(() => {
-    if (!access) {
-      console.log("useEffectがレンダリングされた");
+    let active = true;
+
+    const loadData = async (user: User) => {
+      if (!active) return;
       setLoading(true);
 
-      onAuthStateChanged(auth, async (user) => {
-        console.log("onAuthStateChangedがレンダリングされた");
-        if (user) {
-          let currentUser: UserDocument;
-          const currentUserstockOfContacts: Array<StockOfContacts> = [];
+      try {
+        let currentUser: UserDocument | undefined;
+        const currentUserstockOfContacts: Array<StockOfContacts> = [];
 
-          // usersコレクションを参照
-          const usersCollectionRef = collection(db, "users").withConverter(
-            userConverter
+        // usersコレクションを参照
+        const usersCollectionRef = collection(db, "users").withConverter(
+          userConverter
+        );
+
+        // settingコレクションを参照
+        const settingsCollectionRef = collection(db, "settings");
+
+        // firestoreにuserが存在しなければ、新規会員として扱う
+        const userSnapShot = await getDocs(
+          query(usersCollectionRef, where("uid", "==", user.uid))
+        );
+
+        if (userSnapShot.size === 0) {
+          console.log("userの追加を開始します");
+          // firestoreにuserデータを登録する
+          const newUserDocRef = await addDoc(usersCollectionRef, {
+            created_at: Timestamp.now(),
+            email: user.email,
+            uid: user.uid,
+            user_name: user.displayName,
+          });
+
+          console.log("stockの追加を開始します");
+          await addDoc(
+            collection(db, "users", newUserDocRef.id, "stock_of_contacts"),
+            {
+              id: "",
+              exchangeDay: Timestamp.now(),
+              left_eye: 0,
+              right_eye: 0,
+              updated_at: Timestamp.now(),
+              deadLine: Timestamp.now(),
+            }
+          );
+        }
+
+        // queryのwhereクエリ演算子を使ってドキュメント情報を取得
+        const snapShot = await getDocs(
+          query(usersCollectionRef, where("uid", "==", user.uid))
+        );
+
+        console.log("データの表示を開始します");
+        for (const docObj of snapShot.docs) {
+          if (!active) return;
+          // ここで対象ユーザーのドキュメントのIDを取得
+          setCollectionId(docObj.id);
+          // サブコレクションを取得
+          const subCollectionSnapShot = await getDocs(
+            collection(
+              db,
+              "users",
+              docObj.id,
+              "stock_of_contacts"
+            ).withConverter(stockOfContactsConverter)
           );
 
-          // settingコレクションを参照
-          const settingsCollectionRef = collection(db, "settings");
-
-          // firestoreにuserが存在しなければ、新規会員として扱う
-          await getDocs(
-            query(usersCollectionRef, where("uid", "==", user.uid))
-          ).then(async (snapShot) => {
-            if (snapShot.size === 0) {
-              console.log("userの追加を開始します");
-              // firestoreにuserデータを登録する
-              await addDoc(usersCollectionRef, {
-                created_at: Timestamp.now(),
-                email: user.email,
-                uid: user.uid,
-                user_name: user.displayName,
-              }).then(() => {
-                getDocs(
-                  query(usersCollectionRef, where("uid", "==", user.uid))
-                ).then((snapShot) => {
-                  snapShot.forEach((doc) => {
-                    console.log("stockの追加を開始します");
-                    addDoc(
-                      collection(db, "users", doc.id, "stock_of_contacts"),
-                      {
-                        id: "",
-                        exchangeDay: Timestamp.now(),
-                        left_eye: 0,
-                        right_eye: 0,
-                        updated_at: Timestamp.now(),
-                        deadLine: Timestamp.now(),
-                      }
-                    );
-                  });
-                });
-              });
-            }
+          subCollectionSnapShot.forEach((s) => {
+            currentUserstockOfContacts.push({ ...s.data(), id: s.id });
+            // ここで対象ユーザーのstock_of_contactsのサブコレクションのIDを取得
+            setSubCollectionId(s.id);
           });
 
-          // queryのwhereクエリ演算子を使ってドキュメント情報を取得
-          await getDocs(
-            query(usersCollectionRef, where("uid", "==", user.uid))
-          ).then((snapShot) => {
-            console.log("データの表示を開始します");
-            snapShot.forEach(async (doc) => {
-              // ここで対象ユーザーのドキュメントのIDを取得
-              setCollectionId(doc.id);
-              // サブコレクションを取得
-              const subCollectionSnapShot = await getDocs(
-                collection(
-                  db,
-                  "users",
-                  doc.id,
-                  "stock_of_contacts"
-                ).withConverter(stockOfContactsConverter)
-              );
+          // state更新
+          setStockOfContacts(currentUserstockOfContacts);
 
-              subCollectionSnapShot.forEach((s) => {
-                currentUserstockOfContacts.push({ ...s.data(), id: s.id });
-                // ここで対象ユーザーのstock_of_contactsのサブコレクションのIDを取得
-                setSubCollectionId(s.id);
-              });
+          currentUser = docObj.data();
+          setUserInfo(currentUser);
+        }
 
-              // state更新
-              setStockOfContacts(currentUserstockOfContacts);
+        // コンタクトレンズの管理方法を取得
+        const settingsSnapShot = await getDocs(
+          query(settingsCollectionRef, where("uid", "==", user.uid))
+        );
+        settingsSnapShot.forEach((docObj) => {
+          // stateを更新する
+          setContactManageType(docObj.data().contactManageType);
+        });
 
-              currentUser = doc.data();
-              setUserInfo(currentUser);
-            });
-          });
+        if (active) setLoading(false);
+      } catch (error) {
+        console.error("データの取得中にエラーが発生しました:", error);
+        if (active) setLoading(false);
+      }
+    };
 
-          // コンタクトレンズの管理方法を取得
-          await getDocs(
-            query(settingsCollectionRef, where("uid", "==", user.uid))
-          ).then((snapShot) => {
-            snapShot.forEach((doc) => {
-              // stateを更新する
-              // console.log("settingのデータ", doc.data().contactManageType);
-              setContactManageType(doc.data().contactManageType);
-            });
-          });
-          setLoading(false);
+    // Firebase Authから現在のユーザーを取得
+    const currentUser = auth.currentUser;
+    let unsubscribe: (() => void) | undefined;
+
+    if (currentUser) {
+      // すでにログインしている場合は直接ロード
+      loadData(currentUser);
+    } else {
+      // リスナーを登録
+      unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          loadData(user);
         } else {
           navigate("/");
         }
       });
     }
 
-    // accessをtrueにする処理は、コールバック関数で書くことによって関数を処理してから次の処理を行うようになる
     return () => {
-      access = true;
+      active = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 

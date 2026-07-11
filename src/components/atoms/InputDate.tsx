@@ -45,6 +45,7 @@ const SInput = styled.input`
   box-sizing: border-box;
   outline: none;
   cursor: pointer;
+  text-align: center;
 
   @media (max-width: 768px) {
     font-size: 11.5px;

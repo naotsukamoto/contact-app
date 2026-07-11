@@ -14,7 +14,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 import { SettingWithToggle } from "../molecules/SettingWithToogle";
@@ -43,34 +43,50 @@ export const Settings: React.FC = memo(() => {
     userConverter
   );
 
-  let access: boolean = false;
-
   useEffect(() => {
-    if (!access) {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          await getDocs(
-            query(settingsCollectionRef, where("uid", "==", user.uid))
-          ).then((snapShot) => {
-            snapShot.forEach((doc) => {
-              setContactManageType(doc.data().contactManageType);
-            });
-          });
+    let active = true;
 
-          await getDocs(
-            query(usersCollectionRef, where("uid", "==", user.uid))
-          ).then((snapShot) => {
-            snapShot.forEach((doc) => {
-              setUserInfo(doc.data());
-            });
-          });
+    const loadData = async (user: User) => {
+      if (!active) return;
+      try {
+        const settingsSnapShot = await getDocs(
+          query(settingsCollectionRef, where("uid", "==", user.uid))
+        );
+        settingsSnapShot.forEach((docObj) => {
+          if (active) setContactManageType(docObj.data().contactManageType);
+        });
+
+        const usersSnapShot = await getDocs(
+          query(usersCollectionRef, where("uid", "==", user.uid))
+        );
+        usersSnapShot.forEach((docObj) => {
+          if (active) setUserInfo(docObj.data());
+        });
+      } catch (error) {
+        console.error("設定データの取得中にエラーが発生しました:", error);
+      }
+    };
+
+    const currentUser = auth.currentUser;
+    let unsubscribe: (() => void) | undefined;
+
+    if (currentUser) {
+      loadData(currentUser);
+    } else {
+      unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          loadData(user);
         } else {
           navigate("/");
         }
       });
     }
+
     return () => {
-      access = true;
+      active = false;
+      if (unsubscribe) {
+        unsubscribe();
+      }
     };
   }, []);
 

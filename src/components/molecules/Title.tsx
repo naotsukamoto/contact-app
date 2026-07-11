@@ -29,19 +29,12 @@ const SGnavBrand = styled.div`
   letter-spacing: -0.02em;
 `;
 
-const SGnavMark = styled.span`
+const SGnavMarkImg = styled.img`
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: #003a73;
-  color: #ffffff;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
   margin-right: 9px;
-  font-family: 'Noto Sans JP', sans-serif;
+  object-fit: cover;
 `;
 
 export const Title: React.FC = memo(() => {
@@ -51,11 +44,15 @@ export const Title: React.FC = memo(() => {
     <SGnav>
       <SGnavIn>
         <SGnavBrand>
-          <SGnavMark>コ</SGnavMark>
+          <SGnavMarkImg 
+            src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`} 
+            alt="logo" 
+          />
           コンタクトレンズ交換日通知
         </SGnavBrand>
       </SGnavIn>
     </SGnav>
   );
 });
+
 
