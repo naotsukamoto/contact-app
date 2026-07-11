@@ -16,6 +16,7 @@ const SGnavIn = styled.div`
   margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 0 20px;
   height: 56px;
 `;
@@ -23,18 +24,14 @@ const SGnavIn = styled.div`
 const SGnavBrand = styled.div`
   display: flex;
   align-items: center;
-  color: #1c2b36;
-  font-weight: 900;
-  font-size: 16px;
-  letter-spacing: -0.02em;
+  justify-content: center;
 `;
 
-const SGnavMarkImg = styled.img`
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  margin-right: 9px;
-  object-fit: cover;
+const SGnavLogoImg = styled.img`
+  height: 36px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
 `;
 
 export const Title: React.FC = memo(() => {
@@ -44,11 +41,10 @@ export const Title: React.FC = memo(() => {
     <SGnav>
       <SGnavIn>
         <SGnavBrand>
-          <SGnavMarkImg 
+          <SGnavLogoImg 
             src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`} 
-            alt="logo" 
+            alt="ConCon Buddy" 
           />
-          ConCon | コンタクト管理
         </SGnavBrand>
       </SGnavIn>
     </SGnav>
