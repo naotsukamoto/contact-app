@@ -27,18 +27,17 @@ const SGnavBrand = styled.div`
   justify-content: center;
 `;
 
-const SGnavLogoImg = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  margin-right: 9px;
-  object-fit: cover;
+const SGnavTitleImg = styled.img`
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  margin-right: 6px;
 `;
 
 const SGnavTitleText = styled.h1`
   font-size: 18px;
   font-weight: 900;
-  color: #1c2b36;
+  color: #ef5f26;
   margin: 0;
   letter-spacing: -0.01em;
   font-family: 'Inter', sans-serif;
@@ -51,11 +50,11 @@ export const Title: React.FC = memo(() => {
     <SGnav>
       <SGnavIn>
         <SGnavBrand>
-          <SGnavLogoImg 
-            src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`} 
+          <SGnavTitleImg 
+            src={`${process.env.PUBLIC_URL}/assets/contacts-app-title.png`} 
             alt="ConCon Logo" 
           />
-          <SGnavTitleText>ConCon Buddy</SGnavTitleText>
+          <SGnavTitleText>Buddy</SGnavTitleText>
         </SGnavBrand>
       </SGnavIn>
     </SGnav>
