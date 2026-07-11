@@ -48,7 +48,7 @@ export const Title: React.FC = memo(() => {
             src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`} 
             alt="logo" 
           />
-          コンタクトレンズ交換日通知
+          ConCon | コンタクト管理
         </SGnavBrand>
       </SGnavIn>
     </SGnav>
