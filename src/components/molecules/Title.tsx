@@ -27,20 +27,27 @@ const SGnavBrand = styled.div`
   justify-content: center;
 `;
 
-const SGnavTitleImg = styled.img`
-  height: 28px;
-  width: auto;
-  object-fit: contain;
-  margin-right: 6px;
+const SGnavLogoImg = styled.img`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  margin-right: 9px;
+  object-fit: cover;
 `;
 
 const SGnavTitleText = styled.h1`
   font-size: 18px;
   font-weight: 900;
-  color: #ef5f26;
+  color: #1c2b36;
   margin: 0;
   letter-spacing: -0.01em;
   font-family: 'Inter', sans-serif;
+
+  span {
+    color: #ef5f26;
+    font-weight: 500;
+    margin-left: 4px;
+  }
 `;
 
 export const Title: React.FC = memo(() => {
@@ -50,11 +57,13 @@ export const Title: React.FC = memo(() => {
     <SGnav>
       <SGnavIn>
         <SGnavBrand>
-          <SGnavTitleImg 
-            src={`${process.env.PUBLIC_URL}/assets/contacts-app-title.png`} 
+          <SGnavLogoImg 
+            src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`} 
             alt="ConCon Logo" 
           />
-          <SGnavTitleText>Buddy</SGnavTitleText>
+          <SGnavTitleText>
+            ConCon<span>Buddy</span>
+          </SGnavTitleText>
         </SGnavBrand>
       </SGnavIn>
     </SGnav>
