@@ -1,50 +1,75 @@
 import React, { memo } from "react";
 import styled from "styled-components";
 
-const SButton = styled.button`
-  display: flex;
-  background: #fff;
-  border-radius: 100vh;
-  cursor: pointer;
-  padding: 0.5rem 2rem;
-  border: 1px solid #333333;
-  margin: 0 auto;
-  margin-bottom: 10px;
-  color: #333333;
+type ButtonVariant = "primary" | "ghost";
+
+const SButton = styled.button<{ $variant: ButtonVariant }>`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  padding: 12px 26px;
+  font-size: 13.5px;
+  font-weight: 800;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  margin: 6px auto;
+  min-width: 200px;
+  max-width: 320px;
+  width: 100%;
+  box-sizing: border-box;
 
-  &:hover {
-    opacity: 60%;
+  ${({ $variant }) =>
+    $variant === "primary"
+      ? `
+        background: #ef5f26;
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 4px 12px rgba(239, 95, 38, 0.16);
+
+        &:hover {
+          background: #ff7a45;
+          transform: translateY(-1px);
+        }
+      `
+      : `
+        background: #ffffff;
+        color: #1c2b36;
+        border: 1.5px solid #e7ecf1;
+
+        &:hover {
+          background: #f6f9fc;
+          border-color: #7186ad;
+        }
+      `}
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
 const SImg = styled.img`
   width: 16px;
   height: 16px;
-  margin: 0 5px 0 0;
+  margin-right: 8px;
 `;
 
 type Props = {
   name: string;
   img?: string;
+  variant?: ButtonVariant;
   onClick: () => void;
 };
 
 export const Button: React.FC<Props> = memo((props) => {
-  const { name, img, onClick } = props;
+  const { name, img, variant = "ghost", onClick } = props;
   return (
-    <div>
-      {img ? (
-        <SButton type="button" onClick={onClick}>
-          <SImg src={img} alt="logo" />
-          {name}
-        </SButton>
-      ) : (
-        <SButton type="button" onClick={onClick}>
-          {name}
-        </SButton>
-      )}
+    <div style={{ textAlign: "center" }}>
+      <SButton type="button" $variant={variant} onClick={onClick}>
+        {img && <SImg src={img} alt="logo" />}
+        {name}
+      </SButton>
     </div>
   );
 });
+

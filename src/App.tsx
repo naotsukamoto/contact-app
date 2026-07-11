@@ -8,11 +8,14 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { Router } from "./components/router/Router";
 
 const SMain = styled.div`
-  background: #fafafa;
-  font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, Segoe UI,
-    Hiragino Kaku Gothic ProN, Hiragino Sans, ヒラギノ角ゴ ProN W3, Arial,
-    メイリオ, Meiryo, sans-serif;
-  color: #333333;
+  background: #ffffff;
+  font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #1c2b36;
+  min-height: 100vh;
+
+  * {
+    box-sizing: border-box;
+  }
 `;
 
 const queryClient = new QueryClient();

@@ -249,8 +249,8 @@ export const ExchangeDay: React.FC<Props> = memo((props) => {
           )}
 
           <SFlexRight>
-            <SInventoryDeadline>
-              在庫期限:
+            <SInventoryDeadline $isAlert={s.left_eye < 1 || s.right_eye < 1}>
+              在庫期限:{" "}
               {statusDeadLine(
                 s,
                 format(s.deadLine.toDate(), "yyyy/MM/dd (E)", { locale: ja })

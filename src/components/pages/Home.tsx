@@ -33,8 +33,19 @@ import { loadingAtom } from "../../grobalStates/loadingAtom";
 import { SkeletonComponent } from "../organisms/SkeletonComponent";
 
 const SContainer = styled.div`
-  text-align: center;
+  padding: 0 16px;
+  box-sizing: border-box;
 `;
+
+const SButtonArea = styled.div`
+  margin: 32px auto 56px auto;
+  max-width: 460px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
 
 export const Home: React.FC = memo(() => {
   console.log("Home.tsxがレンダリングされた");
@@ -354,15 +365,15 @@ export const Home: React.FC = memo(() => {
             setStockOfContacts={setStockOfContacts}
             contactManageType={contactManageType}
           />
-          <br />
           <Inventory
             stockOfContacts={stockOfContacts}
             onClickCount={onClickCount}
           />
-          <br />
-          <Button name="使い方ガイド" onClick={onClickToGuide} />
-          <Button name="設定" onClick={onClickToSettings} />
-          <Button name="Sign Out" onClick={onClickSignOut} />
+          <SButtonArea>
+            <Button name="使い方ガイド" onClick={onClickToGuide} />
+            <Button name="設定" onClick={onClickToSettings} />
+            <Button name="Sign Out" onClick={onClickSignOut} />
+          </SButtonArea>
         </>
       )}
     </SContainer>
