@@ -5,7 +5,6 @@ import styled from "styled-components";
 import {
   collection,
   getDocs,
-  getDoc,
   addDoc,
   doc,
   query,
@@ -29,7 +28,6 @@ import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
 import { toastFunc } from "../../utils/toastFunc";
 import { UserName } from "../atoms/UserName";
 import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
-import { loadingAtom } from "../../grobalStates/loadingAtom";
 import { SkeletonComponent } from "../organisms/SkeletonComponent";
 
 const SContainer = styled.div`
@@ -52,7 +50,7 @@ export const Home: React.FC = memo(() => {
   const navigate = useNavigate();
 
   // 初期読み込みのローディングsteteを作成
-  const [loading, setLoading] = useAtom(loadingAtom);
+  const [loading, setLoading] = useState(true);
 
   // ユーザー情報を格納するstateを作成
   const [userInfo, setUserInfo] = useState<UserDocument>();
@@ -195,158 +193,75 @@ export const Home: React.FC = memo(() => {
   }, []);
 
   const onClickCount = useCallback(
-    async (eyePosition: "L" | "R", sign: "+" | "-") => {
+    async (targetId: string, eyePosition: "L" | "R", sign: "+" | "-") => {
       console.log("onClickCountがレンダリングされた");
-      // firestoreへの参照
+
+      const targetStockIndex = stockOfContacts.findIndex((s) => s.id === targetId);
+      if (targetStockIndex === -1) return;
+      const targetStock = stockOfContacts[targetStockIndex];
+
+      const nextExchangeDay: Date = new Date();
+      nextExchangeDay.setDate(nextExchangeDay.getDate() + 14);
+
+      const payload: Partial<StockOfContacts> = {};
+
+      let newLeft = targetStock.left_eye;
+      let newRight = targetStock.right_eye;
+
+      if (eyePosition === "R") {
+        newRight = sign === "+" ? newRight + 1 : newRight - 1;
+        payload.right_eye = newRight;
+        if (sign === "-") {
+          payload.exchangeDayRight = Timestamp.fromDate(nextExchangeDay);
+          if (newRight < newLeft) {
+            payload.exchangeDay = Timestamp.fromDate(nextExchangeDay);
+          }
+        }
+      } else {
+        newLeft = sign === "+" ? newLeft + 1 : newLeft - 1;
+        payload.left_eye = newLeft;
+        if (sign === "-") {
+          payload.exchangeDayLeft = Timestamp.fromDate(nextExchangeDay);
+          if (newLeft < newRight) {
+            payload.exchangeDay = Timestamp.fromDate(nextExchangeDay);
+          }
+        }
+      }
+
+      payload.deadLine = calcInventoryDeadline(
+        newLeft,
+        newRight,
+        payload.exchangeDay || targetStock.exchangeDay
+      );
+
+      const updatedStock = { ...targetStock, ...payload } as StockOfContacts;
+
+      // オプティミスティック更新で画面を即座に変更
+      setStockOfContacts((prevState) =>
+        prevState.map((obj) => (obj.id === targetId ? updatedStock : obj))
+      );
+
+      // バックグラウンドでFirestoreのデータを更新
       const contactsDocRef = doc(
         db,
         "users",
         collectionId,
         "stock_of_contacts",
-        subCollectionId
+        targetId
       );
 
-      // stateの更新を待たずに計算する
-      const stockofContactsData: StockOfContacts | undefined = (
-        await getDoc(contactsDocRef.withConverter(stockOfContactsConverter))
-      ).data();
-
-      // 交換日を定義
-      const nextExchangeDay: Date = new Date();
-      nextExchangeDay.setDate(nextExchangeDay.getDate() + 14);
-
-      if (eyePosition === "R") {
-        if (stockofContactsData) {
-          await updateDoc(
-            contactsDocRef,
-            sign === "+"
-              ? {
-                  right_eye: stockofContactsData.right_eye + 1,
-                  deadLine: calcInventoryDeadline(
-                    stockofContactsData.left_eye,
-                    stockofContactsData.right_eye + 1,
-                    stockofContactsData.exchangeDay
-                  ),
-                }
-              : {
-                  right_eye: stockofContactsData.right_eye - 1,
-                  exchangeDay:
-                    stockofContactsData.right_eye - 1 <
-                    stockofContactsData.left_eye
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : stockofContactsData.exchangeDay,
-                  exchangeDayRight: Timestamp.fromDate(nextExchangeDay),
-                  deadLine: calcInventoryDeadline(
-                    stockofContactsData.left_eye,
-                    stockofContactsData.right_eye - 1,
-                    stockofContactsData.exchangeDay
-                  ),
-                }
-          );
-        }
-
-        // prevStateを使ってスプレッド構文でstateを更新
-        setStockOfContacts((prevState: Array<StockOfContacts>) =>
-          prevState.map((obj: StockOfContacts) =>
-            obj.id === subCollectionId
-              ? {
-                  id: obj.id,
-                  left_eye: obj.left_eye,
-                  right_eye:
-                    sign === "+" ? obj.right_eye + 1 : obj.right_eye - 1,
-                  updated_at: obj.updated_at,
-                  exchangeDay:
-                    obj.right_eye - 1 < obj.left_eye && sign === "-"
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : obj.exchangeDay,
-                  exchangeDayRight:
-                    sign === "-"
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : obj.exchangeDayRight,
-                  exchangeDayLeft: obj.exchangeDayLeft,
-                  deadLine:
-                    sign === "+"
-                      ? calcInventoryDeadline(
-                          obj.left_eye,
-                          obj.right_eye + 1,
-                          obj.exchangeDay
-                        )
-                      : calcInventoryDeadline(
-                          obj.left_eye,
-                          obj.right_eye - 1,
-                          obj.exchangeDay
-                        ),
-                }
-              : obj
-          )
-        );
-      } else {
-        if (stockofContactsData) {
-          await updateDoc(
-            contactsDocRef,
-            sign === "+"
-              ? {
-                  left_eye: stockofContactsData?.left_eye + 1,
-                  deadLine: calcInventoryDeadline(
-                    stockofContactsData.left_eye + 1,
-                    stockofContactsData.right_eye,
-                    stockofContactsData.exchangeDay
-                  ),
-                }
-              : {
-                  left_eye: stockofContactsData?.left_eye - 1,
-                  exchangeDay:
-                    stockofContactsData.left_eye - 1 <
-                    stockofContactsData.right_eye
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : stockofContactsData.exchangeDay,
-                  exchangeDayLeft: Timestamp.fromDate(nextExchangeDay),
-                  deadLine: calcInventoryDeadline(
-                    stockofContactsData.left_eye - 1,
-                    stockofContactsData.right_eye,
-                    stockofContactsData.exchangeDay
-                  ),
-                }
-          );
-        }
-
-        // 個数のstateをスプレッド構文を使って更新
-        setStockOfContacts((prevState: Array<StockOfContacts>) =>
-          prevState.map((obj: StockOfContacts) =>
-            obj.id === subCollectionId
-              ? {
-                  id: obj.id,
-                  left_eye: sign === "+" ? obj.left_eye + 1 : obj.left_eye - 1,
-                  right_eye: obj.right_eye,
-                  updated_at: obj.updated_at,
-                  exchangeDay:
-                    obj.left_eye - 1 < obj.right_eye && sign === "-"
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : obj.exchangeDay,
-                  exchangeDayRight: obj.exchangeDayRight,
-                  exchangeDayLeft:
-                    sign === "-"
-                      ? Timestamp.fromDate(nextExchangeDay)
-                      : obj.exchangeDayLeft,
-                  deadLine:
-                    sign === "+"
-                      ? calcInventoryDeadline(
-                          obj.left_eye + 1,
-                          obj.right_eye,
-                          obj.exchangeDay
-                        )
-                      : calcInventoryDeadline(
-                          obj.left_eye - 1,
-                          obj.right_eye,
-                          obj.exchangeDay
-                        ),
-                }
-              : obj
-          )
+      try {
+        await updateDoc(contactsDocRef, payload);
+      } catch (error) {
+        console.error("更新に失敗しました:", error);
+        toastFunc("error", "数量の更新に失敗しました");
+        // 更新に失敗した場合は元の状態にロールバック
+        setStockOfContacts((prevState) =>
+          prevState.map((obj) => (obj.id === targetId ? targetStock : obj))
         );
       }
     },
-    [collectionId, subCollectionId]
+    [collectionId, stockOfContacts]
   );
 
   const onClickToGuide = useCallback(() => {

@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(firebase:*)",
+      "Bash(npx firebase:*)",
+      "Bash(npx firebase-tools --version)",
+      "Bash(node --version:*)",
+      "Bash(command -v:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(node -e:*)",
+      "Bash(grep:*)",
+      "Bash(xxd:*)",
+      "Bash(python3:*)",
+      "Bash(ls:*)",
+      "Bash(act:*)"
+    ]
+  }
+}

@@ -7,7 +7,7 @@ import { SBox, SRow, SSplitBox } from "../styles/Elements";
 
 type Props = {
   stockOfContacts: Array<StockOfContacts>;
-  onClickCount: (eyePosition: "L" | "R", sign: "+" | "-") => void;
+  onClickCount: (targetId: string, eyePosition: "L" | "R", sign: "+" | "-") => void;
 };
 
 const SCountValue = styled.p`
@@ -54,12 +54,12 @@ export const Inventory: React.FC<Props> = memo((props) => {
                 <SButtonGroup>
                   <CountButton
                     sign="-"
-                    onClickCount={() => onClickCount("L", "-")}
+                    onClickCount={() => onClickCount(stockOfContact.id, "L", "-")}
                     disabled={stockOfContact.left_eye <= 0}
                   />
                   <CountButton
                     sign="+"
-                    onClickCount={() => onClickCount("L", "+")}
+                    onClickCount={() => onClickCount(stockOfContact.id, "L", "+")}
                     disabled={false}
                   />
                 </SButtonGroup>
@@ -70,12 +70,12 @@ export const Inventory: React.FC<Props> = memo((props) => {
                 <SButtonGroup>
                   <CountButton
                     sign="-"
-                    onClickCount={() => onClickCount("R", "-")}
+                    onClickCount={() => onClickCount(stockOfContact.id, "R", "-")}
                     disabled={stockOfContact.right_eye <= 0}
                   />
                   <CountButton
                     sign="+"
-                    onClickCount={() => onClickCount("R", "+")}
+                    onClickCount={() => onClickCount(stockOfContact.id, "R", "+")}
                     disabled={false}
                   />
                 </SButtonGroup>

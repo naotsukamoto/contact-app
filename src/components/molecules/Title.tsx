@@ -36,8 +36,8 @@ const SGnavTitleImg = styled.img`
 
 const SGnavTitleText = styled.h1`
   font-size: 18px;
-  font-weight: 900;
-  color: #1c2b36;
+  font-weight: 500;
+  color: #ef5f26;
   margin: 0;
   letter-spacing: -0.01em;
   font-family: 'Inter', sans-serif;
@@ -56,9 +56,9 @@ export const Title: React.FC = memo(() => {
     <SGnav>
       <SGnavIn>
         <SGnavBrand>
-          <SGnavTitleImg 
-            src={`${process.env.PUBLIC_URL}/assets/contacts-app-title.png`} 
-            alt="ConCon Logo" 
+          <SGnavTitleImg
+            src={`${process.env.PUBLIC_URL}/assets/contacts-app-icon2.png`}
+            alt="ConCon Logo"
           />
           <SGnavTitleText>
             ConCon<span>Buddy</span>
