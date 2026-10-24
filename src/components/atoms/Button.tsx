@@ -59,13 +59,14 @@ type Props = {
   img?: string;
   variant?: ButtonVariant;
   onClick: () => void;
+  disabled?: boolean;
 };
 
 export const Button: React.FC<Props> = memo((props) => {
-  const { name, img, variant = "ghost", onClick } = props;
+  const { name, img, variant = "ghost", onClick, disabled } = props;
   return (
     <div style={{ textAlign: "center" }}>
-      <SButton type="button" $variant={variant} onClick={onClick}>
+      <SButton type="button" $variant={variant} onClick={onClick} disabled={disabled}>
         {img && <SImg src={img} alt="logo" />}
         {name}
       </SButton>

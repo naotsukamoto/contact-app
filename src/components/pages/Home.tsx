@@ -1,33 +1,23 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback } from "react";
 import styled from "styled-components";
 import {
-  collection,
-  getDocs,
-  addDoc,
   doc,
-  query,
-  where,
   updateDoc,
   Timestamp,
 } from "firebase/firestore";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useAtom } from "jotai";
 
 import { db, auth } from "../../firebase";
 import { ExchangeDay } from "../molecules/ExchangeDay";
 import { Inventory } from "../molecules/Inventory";
 import { Button } from "../atoms/Button";
-import { stockOfContactsConverter } from "../../converters/stockOfContactsConverter";
 import { StockOfContacts } from "../../types/StockOfContactsDocument";
-import { userConverter } from "../../converters/userConverter";
-import { UserDocument } from "../../types/UserDocument";
 import { calcInventoryDeadline } from "../../utils/calcInventoryDeadline";
 import { toastFunc } from "../../utils/toastFunc";
 import { UserName } from "../atoms/UserName";
-import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
+import { useContactSettings } from "../../hooks/useContactSettings";
+import { useHomeData } from "../../hooks/useHomeData";
 import { SkeletonComponent } from "../organisms/SkeletonComponent";
 
 const SContainer = styled.div`
@@ -44,153 +34,20 @@ const SButtonArea = styled.div`
   gap: 8px;
 `;
 
+const EMPTY_STOCK: StockOfContacts[] = [];
 
 export const Home: React.FC = memo(() => {
   console.log("Home.tsxがレンダリングされた");
   const navigate = useNavigate();
 
-  // 初期読み込みのローディングsteteを作成
-  const [loading, setLoading] = useState(true);
-
-  // ユーザー情報を格納するstateを作成
-  const [userInfo, setUserInfo] = useState<UserDocument>();
-  // コンタクトレンズの在庫を格納するstateを作成
-  const [stockOfContacts, setStockOfContacts] = useState<
-    Array<StockOfContacts>
-  >([]);
-
-  // コレクションのドキュメントIDを格納するstateを作成
-  const [collectionId, setCollectionId] = useState<string>("");
-  // サブコレクションのドキュメントIDを格納するstateを作成
-  const [subCollectionId, setSubCollectionId] = useState<string>("");
-
-  // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType, setContactManageType] = useAtom(
-    contactManageTypeAtom
-  );
-
-  useEffect(() => {
-    let active = true;
-
-    const loadData = async (user: User) => {
-      if (!active) return;
-      setLoading(true);
-
-      try {
-        let currentUser: UserDocument | undefined;
-        const currentUserstockOfContacts: Array<StockOfContacts> = [];
-
-        // usersコレクションを参照
-        const usersCollectionRef = collection(db, "users").withConverter(
-          userConverter
-        );
-
-        // settingコレクションを参照
-        const settingsCollectionRef = collection(db, "settings");
-
-        // firestoreにuserが存在しなければ、新規会員として扱う
-        const userSnapShot = await getDocs(
-          query(usersCollectionRef, where("uid", "==", user.uid))
-        );
-
-        if (userSnapShot.size === 0) {
-          console.log("userの追加を開始します");
-          // firestoreにuserデータを登録する
-          const newUserDocRef = await addDoc(usersCollectionRef, {
-            created_at: Timestamp.now(),
-            email: user.email,
-            uid: user.uid,
-            user_name: user.displayName,
-          });
-
-          console.log("stockの追加を開始します");
-          await addDoc(
-            collection(db, "users", newUserDocRef.id, "stock_of_contacts"),
-            {
-              id: "",
-              exchangeDay: Timestamp.now(),
-              left_eye: 0,
-              right_eye: 0,
-              updated_at: Timestamp.now(),
-              deadLine: Timestamp.now(),
-            }
-          );
-        }
-
-        // queryのwhereクエリ演算子を使ってドキュメント情報を取得
-        const snapShot = await getDocs(
-          query(usersCollectionRef, where("uid", "==", user.uid))
-        );
-
-        console.log("データの表示を開始します");
-        for (const docObj of snapShot.docs) {
-          if (!active) return;
-          // ここで対象ユーザーのドキュメントのIDを取得
-          setCollectionId(docObj.id);
-          // サブコレクションを取得
-          const subCollectionSnapShot = await getDocs(
-            collection(
-              db,
-              "users",
-              docObj.id,
-              "stock_of_contacts"
-            ).withConverter(stockOfContactsConverter)
-          );
-
-          subCollectionSnapShot.forEach((s) => {
-            currentUserstockOfContacts.push({ ...s.data(), id: s.id });
-            // ここで対象ユーザーのstock_of_contactsのサブコレクションのIDを取得
-            setSubCollectionId(s.id);
-          });
-
-          // state更新
-          setStockOfContacts(currentUserstockOfContacts);
-
-          currentUser = docObj.data();
-          setUserInfo(currentUser);
-        }
-
-        // コンタクトレンズの管理方法を取得
-        const settingsSnapShot = await getDocs(
-          query(settingsCollectionRef, where("uid", "==", user.uid))
-        );
-        settingsSnapShot.forEach((docObj) => {
-          // stateを更新する
-          setContactManageType(docObj.data().contactManageType);
-        });
-
-        if (active) setLoading(false);
-      } catch (error) {
-        console.error("データの取得中にエラーが発生しました:", error);
-        if (active) setLoading(false);
-      }
-    };
-
-    // Firebase Authから現在のユーザーを取得
-    const currentUser = auth.currentUser;
-    let unsubscribe: (() => void) | undefined;
-
-    if (currentUser) {
-      // すでにログインしている場合は直接ロード
-      loadData(currentUser);
-    } else {
-      // リスナーを登録
-      unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          loadData(user);
-        } else {
-          navigate("/");
-        }
-      });
-    }
-
-    return () => {
-      active = false;
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
+  const user = auth.currentUser;
+  const home = useHomeData(user);
+  const settings = useContactSettings(user?.uid ?? "");
+  const { setStockOfContacts } = home;
+  const stockOfContacts = home.data?.stockOfContacts ?? EMPTY_STOCK;
+  const collectionId = home.data?.collectionId ?? "";
+  const subCollectionId = home.data?.subCollectionId ?? "";
+  const contactManageType = settings.data?.contactManageType ?? 0;
 
   const onClickCount = useCallback(
     async (targetId: string, eyePosition: "L" | "R", sign: "+" | "-") => {
@@ -261,16 +118,16 @@ export const Home: React.FC = memo(() => {
         );
       }
     },
-    [collectionId, stockOfContacts]
+    [collectionId, stockOfContacts, setStockOfContacts]
   );
 
   const onClickToGuide = useCallback(() => {
     navigate("/guide");
-  }, []);
+  }, [navigate]);
 
   const onClickToSettings = useCallback(() => {
     navigate("/settings");
-  }, []);
+  }, [navigate]);
 
   const onClickSignOut = useCallback(() => {
     signOut(auth);
@@ -279,18 +136,34 @@ export const Home: React.FC = memo(() => {
 
   return (
     <SContainer>
-      {loading ? (
+      {home.isLoading ? (
         <SkeletonComponent contactManageType={contactManageType} />
+      ) : !home.data ? (
+        <div role="alert">
+          <p>データを読み込めませんでした。通信環境を確認して、もう一度お試しください。</p>
+          <Button name="再読み込み" onClick={() => { home.refetch(); }} />
+        </div>
       ) : (
         <>
-          <UserName children={userInfo?.user_name} />
-          <ExchangeDay
-            stockOfContacts={stockOfContacts}
-            collectionId={collectionId}
-            subCollectionId={subCollectionId}
-            setStockOfContacts={setStockOfContacts}
-            contactManageType={contactManageType}
-          />
+          <UserName children={home.data.userInfo.user_name} />
+          {home.isError && <p role="alert">最新データを取得できませんでした。</p>}
+          {settings.isSaving && <p role="status">設定を保存中...</p>}
+          {settings.data ? (
+            <ExchangeDay
+              stockOfContacts={stockOfContacts}
+              collectionId={collectionId}
+              subCollectionId={subCollectionId}
+              setStockOfContacts={setStockOfContacts}
+              contactManageType={contactManageType}
+            />
+          ) : settings.isError ? (
+            <div role="alert">
+              <p>交換日の設定を読み込めませんでした。</p>
+              <Button name="設定を再読み込み" onClick={() => { settings.refetch(); }} />
+            </div>
+          ) : (
+            <p role="status">交換日の設定を読み込み中...</p>
+          )}
           <Inventory
             stockOfContacts={stockOfContacts}
             onClickCount={onClickCount}

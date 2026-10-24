@@ -75,7 +75,7 @@ export const Login: React.FC = memo(() => {
   const navigate = useNavigate();
 
   // Loadingのstate定義
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ログイン状態であれば、/homeにリダイレクトする
   useEffect(() => {
@@ -86,9 +86,9 @@ export const Login: React.FC = memo(() => {
       } else {
         setIsLoading(false);
       }
-      unsubscribe();
     });
-  }, []);
+    return unsubscribe;
+  }, [navigate]);
 
   // ログインボタンがクリックされたときの処理
   const onClickLogin = useCallback(

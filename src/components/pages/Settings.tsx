@@ -1,26 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import styled from "styled-components";
-import { useAtom, useSetAtom } from "jotai";
+import { useQuery, useQueryClient } from "react-query";
 import {
   collection,
   getDocs,
   query,
-  updateDoc,
   where,
   doc,
   setDoc,
   Timestamp,
 } from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { onAuthStateChanged, User } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 import { SettingWithToggle } from "../molecules/SettingWithToogle";
 import { auth, db } from "../../firebase";
-import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
-import { userInfoAtom } from "../../grobalStates/userInfoAtom";
+import { useContactSettings } from "../../hooks/useContactSettings";
+import { HomeData } from "../../hooks/useHomeData";
+import { UserDocument } from "../../types/UserDocument";
+import { withTimeout } from "../../utils/withTimeout";
 import { userConverter } from "../../converters/userConverter";
 import { Button } from "../atoms/Button";
 import { toastFunc } from "../../utils/toastFunc";
@@ -32,77 +30,31 @@ const SContainer = styled.div`
 export const Settings: React.FC = memo(() => {
   const navigate = useNavigate();
 
-  const setContactManageType = useSetAtom(contactManageTypeAtom);
-  const [userInfo, setUserInfo] = useAtom(userInfoAtom);
-
+  const uid = auth.currentUser?.uid ?? "";
+  const queryClient = useQueryClient();
+  const settings = useContactSettings(uid);
+  const { data: userInfo } = useQuery<UserDocument | undefined>(
+    ["userInfo", uid],
+    async () => {
+      const snapshot = await withTimeout(getDocs(
+        query(collection(db, "users").withConverter(userConverter), where("uid", "==", uid))
+      ));
+      return snapshot.docs[0]?.data();
+    },
+    {
+      enabled: !!uid,
+      initialData: () => queryClient.getQueryData<HomeData>(["home", uid])?.userInfo,
+      staleTime: 30000,
+      retry: false,
+    }
+  );
   const [isLinking, setIsLinking] = useState(false);
   const [isUnlinking, setIsUnlinking] = useState(false);
 
-  const settingsCollectionRef = collection(db, "settings");
-  const usersCollectionRef = collection(db, "users").withConverter(
-    userConverter
-  );
-
-  useEffect(() => {
-    let active = true;
-
-    const loadData = async (user: User) => {
-      if (!active) return;
-      try {
-        const settingsSnapShot = await getDocs(
-          query(settingsCollectionRef, where("uid", "==", user.uid))
-        );
-        settingsSnapShot.forEach((docObj) => {
-          if (active) setContactManageType(docObj.data().contactManageType);
-        });
-
-        const usersSnapShot = await getDocs(
-          query(usersCollectionRef, where("uid", "==", user.uid))
-        );
-        usersSnapShot.forEach((docObj) => {
-          if (active) setUserInfo(docObj.data());
-        });
-      } catch (error) {
-        console.error("設定データの取得中にエラーが発生しました:", error);
-      }
-    };
-
-    const currentUser = auth.currentUser;
-    let unsubscribe: (() => void) | undefined;
-
-    if (currentUser) {
-      loadData(currentUser);
-    } else {
-      unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-          loadData(user);
-        } else {
-          navigate("/");
-        }
-      });
-    }
-
-    return () => {
-      active = false;
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, []);
-
-  const handleChange = useCallback(() => {
-    setContactManageType((prevType) => (prevType === 0 ? 1 : 0));
-
-    getDocs(
-      query(settingsCollectionRef, where("uid", "==", userInfo.uid))
-    ).then((snapShot) => {
-      snapShot.forEach((d) => {
-        updateDoc(doc(settingsCollectionRef, d.id), {
-          contactManageType: d.data().contactManageType === 0 ? 1 : 0,
-        });
-      });
-    });
-  }, []);
+  const handleChange = () => {
+    if (!settings.data || settings.isSaving) return;
+    settings.save(settings.data.contactManageType === 0 ? 1 : 0);
+  };
 
   const onClickLineConnect = useCallback(async () => {
     if (!userInfo?.uid) return;
@@ -136,8 +88,9 @@ export const Settings: React.FC = memo(() => {
       const functions = getFunctions(undefined, "asia-northeast1");
       const unlinkFn = httpsCallable(functions, "unlinkLineAccount");
       await unlinkFn();
-      setUserInfo((prev) => {
-        const next = { ...prev };
+      queryClient.setQueryData<UserDocument | undefined>(["userInfo", uid], (previous) => {
+        if (!previous) return previous;
+        const next = { ...previous };
         delete next.lineUserId;
         return next;
       });
@@ -148,19 +101,27 @@ export const Settings: React.FC = memo(() => {
     } finally {
       setIsUnlinking(false);
     }
-  }, [setUserInfo]);
+  }, [queryClient, uid]);
 
   const onClickToHome = useCallback(() => {
     navigate("/home");
-  }, []);
+  }, [navigate]);
 
   return (
     <SContainer>
       <p>Settings</p>
       <SettingWithToggle
+        disabled={!settings.data || settings.isSaving}
+        checked={settings.data?.contactManageType === 1}
         settingContent="コンタクト交換日を右左それぞれ設定できるようにする"
         handleChange={handleChange}
       />
+      {settings.isLoading && <p role="status">設定を読み込み中...</p>}
+      {settings.isSaving && <p role="status">設定を保存中...</p>}
+      {settings.isError && <div role="alert">
+        <p>設定を読み込めませんでした。</p>
+        <Button name="再読み込み" onClick={() => { settings.refetch(); }} />
+      </div>}
       <br />
       {userInfo?.lineUserId ? (
         <>

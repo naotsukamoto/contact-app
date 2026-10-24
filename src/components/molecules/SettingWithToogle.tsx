@@ -14,15 +14,17 @@ const SEachSetting = styled.div`
 type Props = {
   settingContent: string;
   handleChange: () => void;
+  disabled?: boolean;
+  checked: boolean;
 };
 
 export const SettingWithToggle: React.FC<Props> = memo((props) => {
-  const { settingContent, handleChange } = props;
+  const { settingContent, handleChange, disabled, checked } = props;
   return (
     <SBox>
       <SEachSetting>
         <p>{settingContent}</p>
-        <ToggleButton handleChange={handleChange} />
+        <ToggleButton handleChange={handleChange} disabled={disabled} checked={checked} />
       </SEachSetting>
     </SBox>
   );

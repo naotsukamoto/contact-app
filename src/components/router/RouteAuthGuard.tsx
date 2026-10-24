@@ -10,7 +10,7 @@ type Props = {
 };
 
 export const RouteAuthGuard: React.FC<Props> = memo(({ component, redirect }) => {
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [user, setUser] = useState<User | null | undefined>(() => auth.currentUser ?? undefined);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {

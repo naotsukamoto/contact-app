@@ -1,8 +1,5 @@
 import React, { memo } from "react";
 import styled from "styled-components";
-import { useAtom } from "jotai";
-
-import { contactManageTypeAtom } from "../../grobalStates/contactManageTypeAtom";
 
 const SToggleButton = styled.div`
   margin-left: 8px;
@@ -59,32 +56,24 @@ const SToggleButton = styled.div`
 
 type Props = {
   handleChange: () => void;
+  disabled?: boolean;
+  checked: boolean;
 };
 
 export const ToggleButton: React.FC<Props> = memo((props) => {
-  const { handleChange } = props;
-
-  // コンタクトレンズの管理方法を格納するstateを作成
-  const [contactManageType] = useAtom(contactManageTypeAtom);
+  const { handleChange, disabled, checked } = props;
 
   return (
     <>
       <SToggleButton>
-        {contactManageType === 0 ? (
-          <input
-            id="btn-mode"
-            type="checkbox"
-            onChange={handleChange}
-            checked={false}
-          />
-        ) : (
-          <input
-            id="btn-mode"
-            type="checkbox"
-            onChange={handleChange}
-            checked={true}
-          />
-        )}
+        <input
+          id="btn-mode"
+          type="checkbox"
+          aria-label="コンタクト交換日を左右それぞれ設定する"
+          onChange={handleChange}
+          checked={checked}
+          disabled={disabled}
+        />
         <label htmlFor="btn-mode"></label>
       </SToggleButton>
     </>
